@@ -1,0 +1,3283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Inventory System</title> 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.png">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 50%, #6ee7b7 100%); min-height: 100vh; letter-spacing: -0.01em; }
+        
+        body.dark { background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #065f46 100%); color: #f1f5f9; }
+        .dark .card { background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(255, 255, 255, 0.05) !important; color: #f1f5f9; }
+        .dark .sidebar, .dark header { background: #022c22 !important; border-color: #064e3b !important; }
+        .dark .nav-link-custom { color: #94a3b8; }
+        .dark .nav-link-custom:hover, .dark .nav-link-custom.active { background: #065f46; color: #34d399; }
+        .dark .text-slate-800, .dark h1, .dark h2, .dark h3 { color: #f1f5f9 !important; }
+        .dark .table { color: #cbd5e1 !important; border-color: #064e3b; }
+        .dark .bg-emerald-50 { background-color: rgba(6, 78, 59, 0.2) !important; }
+        .dark .bg-emerald-100 { background-color: rgba(6, 78, 59, 0.4) !important; }
+
+        .sidebar { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 260px; }
+        .nav-link-custom { transition: all 0.2s; color: #64748b; }
+        .nav-link-custom:hover, .nav-link-custom.active { color: #059669; background: #d1fae5; border-radius: 0.5rem; }
+        .card { 
+            background: rgba(255, 255, 255, 0.45) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            border-radius: 0.75rem; 
+        }
+        .status-badge { font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-weight: 600; }
+        
+        .btn-primary, .btn-emerald { background-color: #047857 !important; border-color: #047857 !important; color: white !important; }
+        .btn-primary:hover, .btn-emerald:hover { background-color: #065f46 !important; border-color: #065f46 !important; }
+        
+        .section-fade { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .intro-fade-in {
+            animation: introFadeIn 1.5s ease-out forwards;
+        }
+        .intro-fade-out {
+            animation: introFadeOut 1s ease-in forwards;
+        }
+        @keyframes introFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes introFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .shake-error {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 0.25rem rgba(239, 68, 68, 0.25) !important;
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .auth-bg {
+            background-image: linear-gradient(rgba(6, 78, 59, 0.85), rgba(4, 120, 87, 0.85)), url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        #logContainer::-webkit-scrollbar {
+            width: 8px;
+        }
+        #logContainer::-webkit-scrollbar-track {
+            background: #ecfdf5;
+            border-radius: 10px;
+        }
+        #logContainer::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+        }
+        #logContainer::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+
+        @keyframes soft-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-soft-bounce {
+            animation: soft-bounce 3s ease-in-out infinite;
+        }
+
+        @keyframes rainbow-glow {
+            0% { filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7)); }
+            20% { filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.7)); }
+            40% { filter: drop-shadow(0 0 15px rgba(0, 255, 0, 0.7)); }
+            60% { filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.7)); }
+            80% { filter: drop-shadow(0 0 15px rgba(0, 0, 255, 0.7)); }
+            100% { filter: drop-shadow(0 0 15px rgba(255, 0, 255, 0.7)); }
+        }
+        .animate-rainbow-glow {
+            animation: rainbow-glow 8s linear infinite;
+        }
+
+        @keyframes pulse-warning-glow {
+            0%, 100% { filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.7)); }
+            50% { filter: drop-shadow(0 0 30px rgba(239, 68, 68, 1)); }
+        }
+        .glow-warning { animation: pulse-warning-glow 1.5s ease-in-out infinite !important; }
+
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-sync {
+            animation: pulse-opacity 1s ease-in-out infinite;
+        }
+
+        @keyframes highlight-fade {
+            0% { background-color: rgba(16, 185, 129, 0.3); }
+            100% { background-color: transparent; }
+        }
+        .row-highlight {
+            animation: highlight-fade 4s ease-out forwards;
+        }
+
+        @keyframes flash-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .animate-flash-red {
+            animation: flash-red 0.5s linear infinite;
+        }
+
+        @keyframes progress-glow {
+            0%, 100% { filter: drop-shadow(0 0 2px var(--progress-glow-color, #10b981)); }
+            50% { filter: drop-shadow(0 0 12px var(--progress-glow-color, #10b981)); }
+        }
+        .animate-progress-glow {
+            animation: progress-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes progress-wave {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
+        .animate-progress-wave {
+            background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+            background-size: 40px 40px;
+            animation: progress-wave 1s linear infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .shimmer-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer-effect::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        :root {
+            --progress-glow-color: #10b981;
+        }
+
+        .otp-blur-active .login-blur-target {
+            filter: blur(5px);
+            opacity: 0.5;
+            transition: all 0.5s ease; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="intro-view" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 auth-bg overflow-hidden hidden">
+        <div class="w-full max-w-xs text-center">
+            <div class="w-32 h-32 aspect-square mx-auto mb-8 animate-pulse">
+                <img src="logo.png" alt="Logo" class="w-full h-full object-contain rounded-full animate-rainbow-glow animate-soft-bounce">
+            </div>
+            
+            <div class="w-full bg-slate-200/50 rounded-full h-3 mb-3 overflow-hidden shadow-inner">
+                <div id="intro-progress-bar" class="h-full transition-all duration-300 ease-out animate-progress-glow animate-progress-wave shimmer-effect" style="width: 0%; background-color: hsl(0, 70%, 50%)"></div>
+            </div>
+            <p id="intro-percentage" class="text-emerald-700 font-bold text-lg">0%</p>
+            <p id="intro-slow-warning" class="text-amber-600 text-[10px] font-bold mt-1 hidden uppercase tracking-widest animate-pulse"><i class="fas fa-wifi-exclamation me-1"></i> Slow Connection Detected</p>
+        </div>
+    </div>
+
+    <div id="login-view" class="min-h-screen flex items-center justify-center p-4 auth-bg relative overflow-hidden">
+
+        <div class="card p-8 w-full max-w-md text-center relative z-10">
+            <div class="w-32 h-32 aspect-square mx-auto mb-6 login-blur-target">
+                <img src="logo.png" alt="Logo" class="w-full h-full object-contain rounded-full animate-rainbow-glow animate-soft-bounce">
+            </div>
+            <h2 id="login-title" class="text-2xl font-bold text-slate-800 mb-2 login-blur-target">Login Account</h2>
+            
+            <form id="login-form-step1" onsubmit="handleLoginStep1(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="form-label text-xs font-bold text-slate-600 uppercase">Email Address</label>
+                    <input id="loginEmail" type="email" class="form-control rounded-lg py-2" placeholder="Enter your email address" required>
+                </div>
+                <div>
+                    <label class="form-label text-xs font-bold text-slate-600 uppercase">Password</label>
+                    <div class="relative">
+                        <input id="loginPassword" type="password" class="form-control rounded-lg py-2 pr-10" placeholder="Enter your password" required>
+                        <button type="button" onclick="togglePassword('loginPassword', 'loginPassIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 focus:outline-none">
+                            <i id="loginPassIcon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+               
+                <div class="flex justify-center py-2">
+                    <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                    <label for="rememberMe" class="text-xs font-semibold text-slate-600 cursor-pointer">Remember Me</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-full py-2.5 rounded-pill mt-2 shadow-lg">Verify Credentials</button>
+            </form>
+
+            <form id="login-form-otp" onsubmit="handleOTPVerification(event)" class="space-y-4 text-left hidden">
+                <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100 mb-4">
+                    <p class="text-xs text-emerald-800 text-center">A verification code has been sent to your email and a notification sent to administrator.</p>
+                </div>
+                <div>
+                    <label class="form-label text-xs font-bold text-slate-600 uppercase">Enter 6-Digit OTP</label>
+                    <input id="otpInput" type="text" class="form-control rounded-lg py-3 text-center text-2xl tracking-widest font-bold" maxlength="6" placeholder="000000" required>
+                </div>
+                <div class="text-center py-2">
+                    <p class="text-xs text-slate-500">Code expires in: <span id="otpTimer" class="font-bold text-red-500">01:00</span></p>
+                </div>
+                <button id="otpSubmitBtn" type="submit" class="btn btn-primary w-full py-2.5 rounded-pill mt-2 shadow-lg">Complete Login</button>
+                <button id="resendOTPBtn" type="button" onclick="resendOTP()" class="btn btn-link w-full text-xs text-emerald-700 font-bold no-underline hidden">Resend Verification Code</button>
+                <button type="button" onclick="location.reload()" class="btn btn-link w-full text-xs text-slate-400 no-underline">Back to login</button>
+            </form>
+
+            <p class="mt-6 text-sm text-slate-600">Don't have an account? <a href="#" onclick="showView('register-view')" class="text-emerald-700 font-bold hover:underline">Register here</a></p>
+        </div>
+    </div>
+
+    <div id="loading-view" class="min-h-screen flex items-center justify-center p-4 auth-bg hidden">
+        <div class="card p-10 w-full max-w-md text-center">
+            <div class="w-32 h-32 aspect-square mx-auto mb-8 animate-pulse">
+                <img src="logo.png" alt="Logo" class="w-full h-full object-contain rounded-full animate-rainbow-glow">
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Securing Session</h2>
+            <p class="text-slate-500 mb-8 text-sm">Please wait while we verify your credentials...</p>
+            
+            <div class="w-full bg-slate-200/50 rounded-full h-3 mb-3 overflow-hidden shadow-inner">
+                <div id="loading-progress-bar" class="h-full transition-all duration-300 ease-out animate-progress-glow animate-progress-wave shimmer-effect" style="width: 0%; background-color: hsl(0, 70%, 50%)"></div>
+            </div>
+            <p id="loading-percentage" class="text-emerald-700 font-bold text-lg">0%</p>
+            <p id="loading-slow-warning" class="text-amber-600 text-[10px] font-bold mt-1 hidden uppercase tracking-widest animate-pulse"><i class="fas fa-wifi-exclamation me-1"></i> Slow Connection Detected</p>
+        </div>
+    </div>
+
+    <div id="register-view" class="min-h-screen flex items-center justify-center p-4 auth-bg hidden">
+        <div class="card p-8 w-full max-w-md text-center">
+            <div class="w-32 h-32 aspect-square mx-auto mb-6">
+                <img src="logo.png" alt="Logo" class="w-full h-full object-contain rounded-full animate-rainbow-glow">
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Create Account</h2>
+            <form onsubmit="handleRegister(event)" class="space-y-4 text-left">
+                <div>
+                    <label class="form-label text-xs font-bold text-slate-600 uppercase">Full Name</label>
+                    <input id="regName" type="text" class="form-control rounded-lg py-2" placeholder="Create your full name" required>
+                </div>
+                <div>
+                    <label class="form-label text-xs font-bold text-slate-600 uppercase">Email Address</label>
+                    <input id="regEmail" type="email" class="form-control rounded-lg py-2" placeholder="Create your email address" required>
+                </div>
+                <div>
+                    <label class="form-label text-xs font-bold text-slate-600 uppercase">Password</label>
+                    <div class="relative">
+                        <input id="regPassword" type="password" class="form-control rounded-lg py-2 pr-10" placeholder="Create your password" required>
+                        <button type="button" onclick="togglePassword('regPassword', 'regPassIcon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 focus:outline-none">
+                            <i id="regPassIcon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full py-2.5 rounded-pill mt-4 shadow-lg">Register Now</button>
+            </form>
+            <p class="mt-6 text-sm text-slate-600">Already have an account? <a href="#" onclick="showView('login-view')" class="text-emerald-700 font-bold hover:underline">Sign In</a></p>
+        </div>
+    </div>
+
+    <div id="app-view" class="flex h-screen overflow-hidden hidden">
+     
+        <aside id="sidebar" class="sidebar bg-emerald-50 border-r border-emerald-200 hidden md:flex flex-col p-4">
+            <div class="text-center mb-8">
+                <div class="w-24 h-24 aspect-square mx-auto mb-3">
+                    <img src="logo.png" alt="Logo" class="w-full h-full object-contain rounded-full animate-rainbow-glow">
+                </div>
+            </div>
+
+            <nav class="space-y-1 flex-1">
+                <a href="#" class="nav-link-custom active flex items-center gap-3 px-3 py-2.5" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line w-5"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link-custom flex items-center gap-3 px-3 py-2.5" onclick="showSection('products')">
+                    <i class="fas fa-tag w-5"></i> Products
+                </a>
+                <a href="#" class="nav-link-custom flex items-center gap-3 px-3 py-2.5" onclick="showSection('orders')">
+                    <i class="fas fa-shopping-cart w-5"></i> Orders
+                </a>
+                <a href="#" class="nav-link-custom flex items-center gap-3 px-3 py-2.5" onclick="showSection('suppliers')">
+                    <i class="fas fa-truck-loading w-5"></i> Suppliers
+                </a>
+                <a href="#" class="nav-link-custom flex items-center gap-3 px-3 py-2.5" onclick="showSection('warehouses')">
+                    <i class="fas fa-warehouse w-5"></i> Warehouses
+                </a>
+                <a href="#" class="nav-link-custom flex items-center gap-3 px-3 py-2.5" onclick="showSection('activity-log')">
+                    <i class="fas fa-history w-5"></i> Activity Log
+                </a>
+                <a href="#" class="nav-link-custom flex items-center gap-3 px-3 py-2.5" onclick="showSection('settings')">
+                    <i class="fas fa-cog w-5"></i> Settings
+                </a>
+            </nav>
+
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-y-auto">
+          
+            <header class="bg-emerald-50 border-b border-emerald-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center">
+                    <button onclick="toggleSidebar()" class="md:hidden text-slate-600 mr-4 focus:outline-none"><i class="fas fa-bars fa-lg"></i></button>
+                    <div class="flex flex-col">
+                        <h1 id="section-title" class="text-lg font-semibold text-slate-800">Dashboard</h1>
+                        <span id="autosave-indicator" class="text-[10px] text-emerald-600 font-bold opacity-0 transition-opacity duration-500 uppercase tracking-wider"><i class="fas fa-cloud-upload-alt me-1"></i> Data Auto-Saved</span>
+                        <span id="last-sync-time" class="text-[10px] text-slate-400 font-medium opacity-60 ml-2 uppercase tracking-wider"></span>
+                        <span id="scan-expiry-countdown" class="text-[10px] text-amber-500 font-bold ml-2 uppercase tracking-wider hidden"></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button onclick="startVoiceCommand()" class="btn btn-outline-emerald btn-sm rounded-pill px-3 border-emerald-600 text-emerald-700 hover:bg-emerald-100" title="Voice Search">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button id="notificationBtn" class="btn btn-outline-emerald btn-sm rounded-pill px-3 relative border-emerald-600 text-emerald-700 hover:bg-emerald-100">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full hidden">0</span>
+                    </button>
+                    <div class="flex gap-2">
+                        <button class="btn btn-primary btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#stockAdjustmentModal">
+                            <i class="fas fa-plus me-1"></i> Stock Adjustment
+                        </button>
+                        <button onclick="backupData()" class="btn btn-outline-primary btn-sm rounded-pill px-3 border-emerald-200 hover:bg-emerald-50 text-emerald-600" title="Backup Data (JSON)">
+                            <i class="fas fa-file-export"></i>
+                        </button>
+                        <button onclick="importJSON()" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-slate-200 hover:bg-slate-50 text-slate-600" title="Restore Data (JSON)">
+                            <i class="fas fa-file-import"></i>
+                        </button>
+                        <input type="file" id="jsonImportInput" accept=".json" class="hidden" onchange="handleJSONImport(event)">
+                        <button onclick="clearAllData()" class="btn btn-outline-warning btn-sm rounded-pill px-3 border-amber-200 hover:bg-amber-50 text-amber-600" title="Clear All Data">
+                            <i class="fas fa-eraser"></i>
+                        </button>
+                        <button onclick="logout()" class="btn btn-outline-danger btn-sm rounded-pill px-3 border-red-200 hover:bg-red-50 text-red-600">
+                            <i class="fas fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-6">
+           
+                <section id="dashboard-section">
+                  
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+                        <div class="card bg-emerald-50 p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 uppercase">Total Products</p>
+                                    <h3 id="stat-total-products" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded-lg text-blue-600"><i class="fas fa-box"></i></div>
+                            </div>
+                            <div class="mt-4 flex items-center text-xs text-green-600 font-semibold">
+                                <i class="fas fa-arrow-up me-1"></i> 12% increase
+                            </div>
+                        </div>
+                        <div class="card bg-emerald-50 p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 uppercase">Low Stock Alerts</p>
+                                    <h3 id="stat-low-stock" class="text-2xl font-bold text-red-600 mt-1">0</h3>
+                                </div>
+                                <div class="bg-red-50 p-2 rounded-lg text-red-600"><i class="fas fa-exclamation-triangle"></i></div>
+                            </div>
+                            <p class="mt-4 text-xs text-slate-500">Requires reordering</p>
+                        </div>
+                        <div class="card bg-emerald-50 p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 uppercase">Expired Items</p>
+                                    <h3 id="stat-expired-products" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                                </div>
+                                <div class="bg-amber-50 p-2 rounded-lg text-amber-600"><i class="fas fa-calendar-times"></i></div>
+                            </div>
+                            <p class="mt-4 text-xs text-slate-500">Loss of inventory</p>
+                        </div>
+                        <div class="card bg-emerald-50 p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 uppercase">Pending Orders</p>
+                                    <h3 id="stat-pending-orders" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                                </div>
+                                <div class="bg-amber-50 p-2 rounded-lg text-amber-600"><i class="fas fa-clock"></i></div>
+                            </div>
+                            <p class="mt-4 text-xs text-slate-500">Awaiting fulfillment</p>
+                        </div>
+                        <div class="card bg-emerald-50 p-4">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 uppercase">Inventory Value</p>
+                                    <h3 id="stat-inventory-value" class="text-2xl font-bold text-slate-800 mt-1">₱0</h3>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded-lg text-green-600"><i class="fas fa-dollar-sign"></i></div>
+                            </div>
+                            <p class="mt-4 text-xs text-slate-500">Based on cost price</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    
+                        <div class="card bg-emerald-50 p-6">
+                            <h2 class="font-bold text-slate-800 mb-4">Stock Trends (Last 30 Days)</h2>
+                            <div style="height: 250px;">
+                                <canvas id="stockTrendChart"></canvas>
+                            </div>
+                        </div>
+                      
+                        <div class="card bg-emerald-50 p-6">
+                            <h2 class="font-bold text-slate-800 mb-4">Stock by Category</h2>
+                            <div style="height: 250px;">
+                                <canvas id="categoryPieChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-emerald-50 p-6 mb-8">
+                        <h2 class="font-bold text-slate-800 mb-4">Top 10 Products by Stock Level</h2>
+                        <div style="height: 300px;">
+                            <canvas id="stockLevelBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card bg-emerald-50 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-emerald-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h2 class="font-bold text-slate-800">Recent Stock Movements</h2>
+                            <div class="flex items-center gap-4 flex-1 max-w-md">
+                                <div class="relative w-full">
+                                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input id="movementSearch" type="text" class="form-control ps-10 rounded-lg text-sm" placeholder="Search movements..." oninput="renderMovementsTable()">
+                                </div>
+                                <a href="#" class="text-emerald-600 text-sm font-semibold hover:underline whitespace-nowrap">View All</a>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-emerald-100">
+                                    <tr>
+                                        <th class="ps-6 border-0 text-slate-500 text-xs uppercase font-bold py-3">Timestamp</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold py-3">Product</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold py-3">Type</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold py-3">Qty Change</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold py-3">Warehouse</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold py-3">Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="movements-table-body" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="products-section" class="hidden">
+                    <div class="card bg-emerald-50 p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div class="relative flex-1 max-w-md">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="productSearch" type="text" class="form-control ps-10 rounded-lg" placeholder="Search SKU, name, or category..." oninput="renderProductsTable()">
+                            </div>
+                            <div class="flex gap-2 flex-wrap">
+                                <button onclick="exportLowStockToPDF()" class="btn btn-outline-danger rounded-lg px-4 border-red-200 hover:bg-red-50 text-red-600">
+                                    <i class="fas fa-file-pdf me-2"></i>Low Stock PDF
+                                </button>
+                                <select id="productSort" class="form-select rounded-lg text-sm w-48" onchange="renderProductsTable()">
+                                    <option value="default">Sort By: Default</option>
+                                    <option value="expiry-asc">Sort By: Nearest Expiry</option>
+                                    <option value="expiry-desc">Sort By: Furthest Expiry</option>
+                                    <option value="name-asc">Sort By: Product Name (A-Z)</option>
+                                    <option value="name-desc">Sort By: Product Name (Z-A)</option>
+                                    <option value="stock-asc">Sort By: Lowest Stock</option>
+                                    <option value="stock-desc">Sort By: Highest Stock</option>
+                                </select>
+                                <button onclick="bulkDeleteProducts()" id="bulkDeleteBtn" class="btn btn-outline-danger rounded-lg px-4 hidden"><i class="fas fa-trash-alt me-2"></i>Delete (<span id="selectedCount">0</span>)</button>
+                                <button onclick="exportProductsToCSV()" class="btn btn-outline-primary rounded-lg px-4 border-emerald-200 hover:bg-emerald-50 text-emerald-600"><i class="fas fa-download me-2"></i>Export CSV</button>
+                                <button onclick="importCSV()" class="btn btn-outline-secondary rounded-lg px-4 border-slate-200 hover:bg-slate-50 text-slate-600"><i class="fas fa-upload me-2"></i>Import CSV</button>
+                                <input type="file" id="csvImportInput" accept=".csv" class="hidden" onchange="handleFileSelect(event)">
+                                <button class="btn btn-primary rounded-lg px-4" data-bs-toggle="modal" data-bs-target="#addProductModal">Add Product</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="bg-emerald-100">
+                                    <tr>
+                                        <th class="border-0"><input type="checkbox" id="selectAllProducts" onchange="toggleSelectAllProducts(this.checked)"></th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">SKU</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Product Name</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Category</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Status</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Supplier</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Expiry Date</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Stock on Hand</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">ATS</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="product-table-body" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="orders-section" class="hidden">
+                    <div class="card bg-emerald-50 p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div class="relative flex-1 max-w-md">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="orderSearch" type="text" class="form-control ps-10 rounded-lg" placeholder="Search orders...">
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="printAllOrders()" class="btn btn-outline-primary rounded-lg px-4 border-blue-200 hover:bg-blue-50 text-blue-600"><i class="fas fa-print me-2"></i>Print All Orders</button>
+                                <button class="btn btn-emerald text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg px-4" data-bs-toggle="modal" data-bs-target="#addOrderModal">
+                                    <i class="fas fa-cart-plus me-2"></i>New Order
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="bg-emerald-100">
+                                    <tr>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Order ID</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Customer</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Product</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Qty</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Total</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Status</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Date</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order-table-body" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="activity-log-section" class="hidden">
+                    <div class="card bg-emerald-50 p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div class="relative flex-1 max-w-xs">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="logSearch" type="text" class="form-control ps-10 rounded-lg" placeholder="Search SKU or name..." oninput="renderActivityLog()">
+                            </div>
+                            <div class="flex gap-2 flex-wrap items-center">
+                                <input type="date" id="logStartDate" class="form-control rounded-lg text-sm w-auto" onchange="renderActivityLog()">
+                                <span class="text-slate-400 text-xs font-bold">TO</span>
+                                <input type="date" id="logEndDate" class="form-control rounded-lg text-sm w-auto" onchange="renderActivityLog()">
+                                <select id="logActionType" class="form-select rounded-lg text-sm w-auto" onchange="renderActivityLog()">
+                                    <option value="All">All Actions</option>
+                                    <option value="Sales Shipment">Sales Shipment</option>
+                                    <option value="Purchase Receipt">Purchase Receipt</option>
+                                    <option value="Return">Return</option>
+                                    <option value="Adjustment/Loss">Adjustment</option>
+                                </select>
+                                <select id="logChartMode" class="form-select rounded-lg text-sm w-auto" onchange="renderActivityLog()">
+                                    <option value="volume">Volume of Change</option>
+                                    <option value="net">Net Quantity Change</option>
+                                </select>
+                                <button onclick="exportActivityLogToPDF()" class="btn btn-outline-danger rounded-lg px-4 border-red-200 hover:bg-red-50 text-red-600">
+                                    <i class="fas fa-file-pdf me-2"></i>Export PDF
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card bg-white/50 p-4 mb-6 border-0 shadow-sm">
+                            <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Stock Movements Overview</h3>
+                            <div style="height: 180px;"><canvas id="activityChart"></canvas></div>
+                        </div>
+                        <div class="table-responsive max-h-[500px] overflow-y-auto" id="logContainer">
+                            <table class="table table-hover align-middle">
+                                <thead class="bg-emerald-100">
+                                    <tr>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Timestamp</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Admin</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Action/Type</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Product</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Qty</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activity-log-table-body" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="suppliers-section" class="hidden">
+                    <div class="card bg-emerald-50 p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div class="relative flex-1 max-w-md">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="supplierSearch" type="text" class="form-control ps-10 rounded-lg" placeholder="Search suppliers...">
+                            </div>
+                            <button class="btn btn-primary rounded-lg px-4" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+                                <i class="fas fa-plus me-2"></i>Add Supplier
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="bg-emerald-100">
+                                    <tr>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Company Name</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Contact</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Email/Phone</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Address</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="supplier-table-body" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="warehouses-section" class="hidden">
+                    <div class="card bg-emerald-50 p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div class="relative flex-1 max-w-md">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input id="warehouseSearch" type="text" class="form-control ps-10 rounded-lg" placeholder="Search warehouses...">
+                            </div>
+                            <button class="btn btn-primary rounded-lg px-4" data-bs-toggle="modal" data-bs-target="#addWarehouseModal">
+                                <i class="fas fa-plus me-2"></i>Add Warehouse
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="bg-emerald-100">
+                                    <tr>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Warehouse Name</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Location</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Manager</th>
+                                        <th class="border-0 text-slate-500 text-xs uppercase font-bold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="warehouse-table-body" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="settings-section" class="hidden">
+                    <div class="card bg-emerald-50 p-6 max-w-md">
+                        <h2 class="font-bold text-slate-800 mb-4">System Settings</h2>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600 block mb-2">Sound Effects Volume</label>
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-volume-low text-slate-400"></i>
+                                    <input type="range" id="volumeControl" class="form-range flex-1 accent-emerald-600" min="0" max="1" step="0.1" value="0.5" oninput="changeVolume(this.value)">
+                                    <i class="fas fa-volume-high text-slate-400"></i>
+                                </div>
+                                <button onclick="successSound.play()" class="btn btn-outline-emerald btn-sm rounded-pill mt-3 px-4 border-emerald-600 text-emerald-700 hover:bg-emerald-100">
+                                    <i class="fas fa-play me-2"></i> Test Sound
+                                </button>
+                            </div>
+                            <hr class="border-emerald-200 opacity-20">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="form-label text-sm font-semibold text-slate-600 block mb-0">Dark Mode</label>
+                                    <p class="text-xs text-slate-400">Switch between light and dark themes</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input h-6 w-11 accent-emerald-600" type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)">
+                                </div>
+                            </div>
+                            <hr class="border-emerald-200 opacity-20">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600 block mb-2">Scan Management</label>
+                                <button onclick="clearScanCache()" class="btn btn-outline-warning btn-sm rounded-pill px-4 border-amber-200 hover:bg-amber-50 text-amber-600">
+                                    <i class="fas fa-trash-restore me-2"></i> Clear Scan Cache
+                                </button>
+                                <div class="mt-4">
+                                    <label class="form-label text-sm font-semibold text-slate-600 block mb-2">Voice Speed</label>
+                                    <div class="flex items-center gap-4">
+                                        <i class="fas fa-running text-slate-400"></i>
+                                        <input type="range" id="voiceSpeedControl" class="form-range flex-1 accent-emerald-600" min="0.5" max="2" step="0.1" value="1.3" oninput="changeVoiceSpeed(this.value)">
+                                        <span id="voiceSpeedValue" class="text-xs font-bold text-emerald-600 w-8">1.3x</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="form-label text-sm font-semibold text-slate-600 block mb-2">Voice Pitch (Robotic Level)</label>
+                                    <div class="flex items-center gap-4">
+                                        <i class="fas fa-microchip text-slate-400"></i>
+                                        <input type="range" id="voicePitchControl" class="form-range flex-1 accent-emerald-600" min="0.1" max="2" step="0.1" value="1.8" oninput="changeVoicePitch(this.value)">
+                                        <span id="voicePitchValue" class="text-xs font-bold text-emerald-600 w-8">1.8x</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="form-label text-sm font-semibold text-slate-600 block mb-2">Notification Voice (Lalaki/Babae)</label>
+                                    <select id="voiceSelect" class="form-select rounded-lg text-sm" onchange="changeVoice(this.value)">
+                                        <option value="-1">Default System Voice</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="addSupplierModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800">Add New Supplier</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="supplierForm">
+                    <div class="modal-body space-y-4">
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Company Name</label>
+                            <input id="supName" type="text" class="form-control rounded-lg" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Contact Person</label>
+                                <input id="supContact" type="text" class="form-control rounded-lg">
+                            </div>
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Phone</label>
+                                <input id="supPhone" type="text" class="form-control rounded-lg">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Email</label>
+                            <input id="supEmail" type="email" class="form-control rounded-lg">
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Address</label>
+                            <textarea id="supAddress" class="form-control rounded-lg" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-primary w-full rounded-pill">Create Supplier</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addWarehouseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800">Add New Warehouse</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="warehouseForm">
+                    <div class="modal-body space-y-4">
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Warehouse Name</label>
+                            <input id="warName" type="text" class="form-control rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Location</label>
+                            <input id="warLocation" type="text" class="form-control rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Manager Name</label>
+                            <input id="warManager" type="text" class="form-control rounded-lg">
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-primary w-full rounded-pill">Create Warehouse</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800">Create Sales Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="orderForm">
+                    <div class="modal-body space-y-4">
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Customer Name</label>
+                            <input id="ordCustomer" type="text" class="form-control rounded-lg" required>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Select Product</label>
+                            <select id="ordProduct" class="form-select rounded-lg" required onchange="updateOrderPrice()"></select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Quantity</label>
+                                <input id="ordQty" type="number" class="form-control rounded-lg" value="1" min="1" required oninput="updateOrderPrice()">
+                            </div>
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Estimated Total</label>
+                                <div id="ordTotal" class="form-control bg-slate-50 font-bold text-emerald-600">₱0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-emerald w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-pill">Place Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="productForm">
+                    <div class="modal-body space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">SKU</label>
+                                <input id="newSku" type="text" class="form-control rounded-lg" required>
+                            </div>
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Category</label>
+                                <input id="newCategory" type="text" class="form-control rounded-lg" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Product Name</label>
+                            <input id="newName" type="text" class="form-control rounded-lg" required>
+                        </div>
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Expiry Date</label>
+                                <input id="newExpiry" type="date" class="form-control rounded-lg">
+                            </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Product Status</label>
+                            <select id="newStatus" class="form-select rounded-lg">
+                                <option value="Active">Active</option>
+                                <option value="Discontinued">Discontinued</option>
+                                <option value="Out of Stock">Out of Stock</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Product Image</label>
+                            <div class="flex flex-col gap-2">
+                                <input id="newImageFile" type="file" class="form-control rounded-lg text-xs" accept="image/*">
+                                <div class="text-center text-[10px] text-slate-400 uppercase font-bold">— OR —</div>
+                                <input id="newImageUrl" type="text" class="form-control rounded-lg text-xs" placeholder="Paste Image URL here">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Preferred Supplier</label>
+                            <select id="newSupplier" class="form-select rounded-lg"></select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Initial Stock</label>
+                                <input id="newStock" type="number" class="form-control rounded-lg" value="0" min="0">
+                            </div>
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Unit Cost (₱)</label>
+                                <input id="newCost" type="number" class="form-control rounded-lg" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="submit" class="btn btn-primary w-full rounded-pill">Create Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="stockAdjustmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800">Manual Stock Adjustment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="adjustmentForm">
+                    <div class="modal-body space-y-4">
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Product</label>
+                            <select id="adjProduct" class="form-select rounded-lg" required>
+                                <option value="">Select a product...</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Movement Type</label>
+                                <select class="form-select rounded-lg" required>
+                                    <option>Adjustment/Loss</option>
+                                    <option>Return</option>
+                                    <option>Purchase Receipt</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label text-sm font-semibold text-slate-600">Quantity Change</label>
+                                <input id="adjQty" type="number" class="form-control rounded-lg" placeholder="e.g. -5 or 10" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="form-label text-sm font-semibold text-slate-600">Reason / Reference</label>
+                            <textarea id="adjReason" class="form-control rounded-lg" rows="3" placeholder="Explain the change..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Submit Audit Log</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmReturnModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800 text-center w-full">Confirm Return</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center p-6">
+                    <div class="w-20 h-20 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-undo fa-2x"></i>
+                    </div>
+                    <p id="returnModalText" class="text-slate-600 mb-0"></p>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                    <button id="confirmReturnBtn" type="button" class="btn btn-emerald rounded-pill px-4">Confirm Return</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="categoryDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-bold text-slate-800" id="catDetailTitle">Category Details</h5>
+                    <div class="ms-auto flex items-center gap-2">
+                        <button onclick="exportCategoryToPDF()" class="btn btn-sm btn-outline-danger rounded-pill px-3 border-red-200 hover:bg-red-50 text-red-600">
+                            <i class="fas fa-file-pdf me-1"></i> Export PDF
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="flex flex-col md:flex-row gap-3 mb-4">
+                        <div class="relative flex-1">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input id="catDetailSearch" type="text" class="form-control ps-10 rounded-lg text-sm" placeholder="Search product name or SKU..." oninput="renderCategoryDetails()">
+                        </div>
+                        <select id="catDetailSort" class="form-select rounded-lg text-sm w-full md:w-48" onchange="renderCategoryDetails()">
+                            <option value="name-asc">Sort: Product Name</option>
+                            <option value="stock-asc">Sort: Lowest Stock</option>
+                            <option value="stock-desc">Sort: Highest Stock</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive max-h-96 overflow-y-auto">
+                        <table class="table table-hover align-middle">
+                            <thead class="bg-emerald-50 sticky top-0">
+                                <tr>
+                                    <th class="border-0 text-slate-500 text-xs uppercase font-bold">SKU</th>
+                                    <th class="border-0 text-slate-500 text-xs uppercase font-bold">Product Name</th>
+                                    <th class="border-0 text-slate-500 text-xs uppercase font-bold text-end">Current Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catDetailBody" class="text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    
+        let stockTrendChartInstance;
+        let categoryPieChartInstance;
+        let revenueChartInstance;
+        let stockBarChartInstance;
+        let activityChartInstance;
+
+        let currentOTP = null;
+        let pendingUser = null;
+        let otpTimerInterval = null;
+        let orderIdToReturn = null; 
+        let countdownInterval = null; 
+        let voices = []; 
+        let preferredVoiceIndex = localStorage.getItem('preferred_voice_index') || -1;
+        let appVoiceSpeed = localStorage.getItem('app_voice_speed') || 1.3;
+        let appVoicePitch = localStorage.getItem('app_voice_pitch') || 1.8;
+        let currentActiveCategory = '';
+        let currentUser = JSON.parse(localStorage.getItem('auth_user')) || null;
+        let tempUploadedImage = null;
+
+        const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3');
+        const errorSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3');
+        const loadingSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3');
+        const alarmSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1003/1003-preview.mp3');
+
+        function toggleDarkMode(isDark) {
+            if (isDark) {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+            localStorage.setItem('dark_mode', isDark);
+        }
+
+        function clearScanCache() {
+            sessionStorage.removeItem('last_scanned_sku');
+            sessionStorage.removeItem('last_scanned_time');
+            document.getElementById('scan-expiry-countdown').classList.add('hidden');
+            showToast('Cache Cleared', 'Double-scan prevention has been reset.', 'warning');
+            successSound.play().catch(e => console.log("Blocked"));
+        }
+
+        let appVolume = localStorage.getItem('app_volume') || 0.5;
+        function changeVolume(val) {
+            appVolume = val;
+            successSound.volume = val;
+            errorSound.volume = val;
+            loadingSound.volume = val;
+            alarmSound.volume = val;
+            localStorage.setItem('app_volume', val);
+        }
+
+        function populateVoices() {
+            voices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('voiceSelect');
+            if (!voiceSelect) return;
+            
+            voiceSelect.innerHTML = '<option value="-1">Default System Voice</option>';
+            voices.forEach((voice, i) => {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                if (preferredVoiceIndex == i) option.selected = true;
+                voiceSelect.appendChild(option);
+            });
+        }
+        window.speechSynthesis.onvoiceschanged = populateVoices;
+
+        function changeVoice(index) {
+            preferredVoiceIndex = index;
+            localStorage.setItem('preferred_voice_index', index);
+            
+            const msg = new SpeechSynthesisUtterance("This is your selected voice.");
+            msg.lang = 'en-GB';
+            msg.rate = appVoiceSpeed;
+            msg.pitch = appVoicePitch;
+            msg.volume = appVolume;
+            if (index != -1 && voices[index]) msg.voice = voices[index];
+            window.speechSynthesis.speak(msg);
+        }
+
+        function changeVoicePitch(val) {
+            appVoicePitch = parseFloat(val);
+            document.getElementById('voicePitchValue').innerText = val + 'x';
+            localStorage.setItem('app_voice_pitch', val);
+        }
+
+        function changeVoiceSpeed(val) {
+            appVoiceSpeed = val;
+            document.getElementById('voiceSpeedValue').innerText = val + 'x';
+            localStorage.setItem('app_voice_speed', val);
+        }
+
+        function setSystemStatusUI(status) {
+            const bars = ['intro-progress-bar', 'loading-progress-bar'];
+            const warnings = ['intro-slow-warning', 'loading-slow-warning'];
+            const root = document.documentElement;
+            
+            const statusConfig = {
+                'online': { color: 'bg-emerald-600', glow: '#10b981' },
+                'slow': { color: 'bg-amber-500', glow: '#f59e0b' },
+                'offline': { color: 'bg-red-500', glow: '#ef4444' }
+            };
+
+            const config = statusConfig[status] || statusConfig['online'];
+            
+            bars.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                
+                el.classList.remove('bg-emerald-600', 'bg-amber-500', 'bg-red-500');
+               
+                el.classList.add(config.color);
+            });
+
+            warnings.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                status === 'slow' ? el.classList.remove('hidden') : el.classList.add('hidden');
+            });
+
+            root.style.setProperty('--progress-glow-color', config.glow);
+        }
+
+        function startScanCountdown() {
+            const countdownEl = document.getElementById('scan-expiry-countdown');
+            if (!countdownEl) return;
+
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const lastScannedTime = sessionStorage.getItem('last_scanned_time');
+                if (!lastScannedTime) {
+                    countdownEl.classList.add('hidden');
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                const elapsed = Date.now() - parseInt(lastScannedTime);
+                const remaining = 300000 - elapsed;
+
+                if (remaining <= 0) {
+                    countdownEl.classList.add('hidden');
+                    clearInterval(countdownInterval);
+                } else {
+                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.floor((remaining % 60000) / 1000);
+                    countdownEl.classList.remove('hidden');
+                    
+                    if (remaining <= 30000) {
+                        countdownEl.classList.replace('text-amber-500', 'text-red-600');
+                    } else {
+                        countdownEl.classList.replace('text-red-600', 'text-amber-500');
+                    }
+                    
+                    if (remaining <= 10000) {
+                        countdownEl.classList.add('animate-flash-red');
+                    } else {
+                        countdownEl.classList.remove('animate-flash-red');
+                    }
+                    
+                    if (remaining <= 5000 && remaining > 0) {
+                        alarmSound.play().catch(e => console.log("Sound play blocked"));
+                    }
+                    
+                    countdownEl.innerHTML = `| <i class="fas fa-hourglass-half me-1"></i> Cache Reset: ${mins}:${secs.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function startVoiceCommand() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast('Not Supported', 'Speech recognition is not supported in this browser.', 'danger');
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.start();
+
+            showToast('Voice System', 'Listening for product name...', 'info');
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase();
+                const cleanQuery = transcript.replace('check stock for', '').replace('check stock', '').trim();
+                
+                const product = productData.find(p => 
+                    p.name.toLowerCase().includes(cleanQuery) || 
+                    p.sku.toLowerCase() === cleanQuery
+                );
+
+                if (product) {
+                    const msgText = `The current stock for ${product.name} is ${product.quantity_on_hand} units.`;
+                    const msg = new SpeechSynthesisUtterance(msgText);
+                    msg.lang = 'en-GB';
+                    msg.rate = appVoiceSpeed;
+                    msg.pitch = appVoicePitch;
+                    msg.volume = appVolume;
+                    if (preferredVoiceIndex != -1 && voices[preferredVoiceIndex]) msg.voice = voices[preferredVoiceIndex];
+                    window.speechSynthesis.speak(msg);
+                    showToast('Voice Result', msgText, 'success');
+                } else {
+                    showToast('Not Found', `Product "${cleanQuery}" not found.`, 'warning');
+                }
+            };
+        }
+
+        function showView(viewId) {
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('register-view').classList.add('hidden');
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('loading-view').classList.add('hidden');
+            
+            const target = document.getElementById(viewId);
+            target.classList.remove('hidden');
+            target.classList.add('section-fade');
+            
+            if (viewId === 'app-view') {
+                renderDashboardCharts();
+            }
+        }
+
+        function startOTPTimer() {
+            let timeLeft = 60;
+            const display = document.getElementById('otpTimer');
+            const submitBtn = document.getElementById('otpSubmitBtn');
+            const resendBtn = document.getElementById('resendOTPBtn');
+
+            resendBtn.classList.add('hidden');
+            submitBtn.disabled = false;
+            
+            clearInterval(otpTimerInterval);
+            otpTimerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                display.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(otpTimerInterval);
+                    display.innerText = "EXPIRED";
+                    submitBtn.disabled = true;
+                    resendBtn.classList.remove('hidden');
+                    currentOTP = null;
+                }
+            }, 1000);
+        }
+
+        function resendOTP() {
+            if (!pendingUser) return;
+            currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            sendEmailNotification(pendingUser.email, currentOTP);
+            startOTPTimer();
+            showToast('New Code Sent', 'A fresh verification code is on its way.', 'success');
+        }
+
+        function startLoadingSequence(title, message, onComplete) {
+            showView('loading-view');
+            
+            document.querySelector('#loading-view h2').innerText = title;
+            document.querySelector('#loading-view p').innerText = message;
+            
+            loadingSound.play().catch(e => console.log("Audio playback requires user interaction."));
+            
+            const progressBar = document.getElementById('loading-progress-bar');
+            const percentageText = document.getElementById('loading-percentage');
+            let progress = 0;
+            
+            const interval = setInterval(() => {
+             
+                progress += Math.floor(Math.random() * 15) + 5;
+                
+                if (progress % 20 === 0) checkNetworkQuality();
+
+                const hue = progress * 1.2; 
+                progressBar.style.backgroundColor = `hsl(${hue}, 70%, 50%)`;
+
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    successSound.play().catch(e => {});
+                    setTimeout(onComplete, 600);
+                }
+                progressBar.style.width = `${progress}%`;
+                percentageText.innerText = `${progress}%`;
+            }, 200);
+        }
+
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function handleLoginStep1(e) {
+            e.preventDefault();
+            
+            const captchaResponse = grecaptcha.getResponse();
+            if (captchaResponse.length === 0) {
+                showToast('reCAPTCHA Required', 'Please verify that you are not a robot.', 'warning');
+                return;
+            }
+
+            const email = document.getElementById('loginEmail').value;
+            const pass = document.getElementById('loginPassword').value;
+            const users = JSON.parse(localStorage.getItem('inventory_users')) || [];
+
+            const user = users.find(u => u.email === email && u.password === pass);
+
+            if (user) {
+                pendingUser = user;
+          
+                currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                sendEmailNotification(user.email, currentOTP);
+
+                document.getElementById('login-view').classList.add('otp-blur-active');
+
+                startOTPTimer();
+
+                document.getElementById('login-form-step1').classList.add('hidden');
+                document.getElementById('login-form-otp').classList.remove('hidden');
+                document.getElementById('otpInput').focus();
+                document.getElementById('login-title').innerText = 'Two-Factor Auth';
+
+                showToast('OTP Sent', 'Check your email for the verification code.', 'success');
+            } else {
+                errorSound.play().catch(e => console.log("Sound play blocked"));
+                showToast('Invalid Credentials', 'The email or password you entered is incorrect.', 'danger');
+            }
+        }
+
+        function handleOTPVerification(e) {
+            e.preventDefault();
+            const enteredOTP = document.getElementById('otpInput').value;
+
+            if (enteredOTP === currentOTP) {
+                const rememberMe = document.getElementById('rememberMe');
+                clearInterval(otpTimerInterval);
+                
+                successSound.play().catch(e => console.log("Sound play blocked"));
+                
+                startLoadingSequence('Securing Session', 'Please wait while we verify your credentials...', () => {
+                    currentUser = pendingUser;
+                    if (rememberMe && rememberMe.checked) {
+                        localStorage.setItem('auth_session', 'true');
+                        localStorage.setItem('auth_user', JSON.stringify(currentUser));
+                    }
+                    showView('app-view');
+                    showToast('Access Granted', `Welcome back, ${pendingUser.name}`, 'success');
+                    currentOTP = null;
+                    pendingUser = null;
+                });
+            } else {
+                const otpInput = document.getElementById('otpInput');
+                
+                errorSound.play().catch(e => console.log("Sound play blocked"));
+                otpInput.classList.add('shake-error');
+                
+                setTimeout(() => {
+                    otpInput.classList.remove('shake-error');
+                }, 500);
+
+                showToast('Invalid OTP', 'The verification code is incorrect.', 'danger');
+            }
+        }
+
+        function sendEmailNotification(userEmail, otp) {
+            console.log(`[REAL WORLD ADVICE]: In a production environment, you would call your backend API now.`);
+            console.log(`API Target: ${userEmail}`);
+            console.log(`Notification: User ${userEmail} is logging in. OTP is ${otp}`);
+            
+            setTimeout(() => {
+                showToast('Incoming Email', `To: ${userEmail} - Login Alert! OTP: ${otp}`, 'emerald');
+            }, 1000);
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const pass = document.getElementById('regPassword').value;
+            
+            let users = JSON.parse(localStorage.getItem('inventory_users')) || [];
+            
+            if (users.some(u => u.email === email)) {
+                showToast('Account Error', 'This email is already registered.', 'warning');
+                return;
+            }
+
+            users.push({ name, email, password: pass });
+            localStorage.setItem('inventory_users', JSON.stringify(users));
+            
+            showToast('Success', 'Account created! You can now log in.', 'success');
+            showView('login-view');
+        }
+
+        function logout() {
+            startLoadingSequence('Ending Session', 'Clearing secure data and signing out...', () => {
+                localStorage.removeItem('auth_session');
+                localStorage.removeItem('auth_user');
+                
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = ''; 
+                document.getElementById('otpInput').value = ''; 
+
+                // Reset OTP view if necessary
+                document.getElementById('login-form-step1').classList.remove('hidden');
+                document.getElementById('login-form-otp').classList.add('hidden');
+                document.getElementById('login-view').classList.remove('otp-blur-active');
+                document.getElementById('login-title').innerText = 'Login Account';
+
+                currentUser = null;
+                pendingUser = null;
+                currentOTP = null;
+                showView('login-view');
+                showToast('Signed Out', 'You have been safely logged out.', 'success');
+            });
+        }
+
+        function clearAllData() {
+            if (confirm('DANGER: This will permanently delete all products, orders, suppliers, warehouses, and activity logs. This action cannot be undone. Proceed?')) {
+                const keys = [
+                    'inventory_products',
+                    'inventory_movements',
+                    'inventory_suppliers',
+                    'inventory_warehouses',
+                    'inventory_orders'
+                ];
+                keys.forEach(key => localStorage.removeItem(key));
+                
+                productData = [];
+                movementsData = [];
+                supplierData = [];
+                warehouseData = [];
+                orderData = [];
+                
+                showToast('System Reset', 'All inventory data has been cleared.', 'danger');
+                refreshUI();
+                setTimeout(() => location.reload(), 1500);
+            }
+        }
+
+        function backupData() {
+            const data = {
+                products: productData,
+                movements: movementsData,
+                suppliers: supplierData,
+                warehouses: warehouseData,
+                orders: orderData
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `inventory_backup_${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            showToast('Backup Created', 'Your data has been downloaded as a JSON file.', 'success');
+        }
+
+        function importJSON() {
+            document.getElementById('jsonImportInput').click();
+        }
+
+        function handleJSONImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (!data.products) throw new Error('Invalid format.');
+
+                    if (confirm('Are you sure you want to restore data from this backup? All current data will be replaced.')) {
+                        startLoadingSequence('Restoring Data', 'Syncing your backup and rebuilding the environment...', () => {
+                            productData = data.products || [];
+                            movementsData = data.movements || [];
+                            supplierData = data.suppliers || [];
+                            warehouseData = data.warehouses || [];
+                            orderData = data.orders || [];
+
+                            saveState();
+                            refreshUI();
+                            showToast('Restoration Complete', 'All data has been restored successfully.', 'success');
+                            setTimeout(() => location.reload(), 1000);
+                        });
+                    }
+                } catch (err) {
+                    showToast('Import Error', 'The file provided is not a valid InventoryPro backup.', 'danger');
+                }
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        let productData = JSON.parse(localStorage.getItem('inventory_products')) || [];
+        let movementsData = JSON.parse(localStorage.getItem('inventory_movements')) || [];
+        let supplierData = JSON.parse(localStorage.getItem('inventory_suppliers')) || [];
+        let warehouseData = JSON.parse(localStorage.getItem('inventory_warehouses')) || [];
+        let orderData = JSON.parse(localStorage.getItem('inventory_orders')) || [];
+        let lastLowStockCount = productData.filter(p => p.quantity_on_hand < 10).length;
+        let lastExpiringCount = 0;
+        let editSupplierIdx = -1;
+        let editProductSku = null;
+        let editWarehouseIdx = -1;
+
+        function saveState() {
+            localStorage.setItem('inventory_products', JSON.stringify(productData));
+            localStorage.setItem('inventory_movements', JSON.stringify(movementsData));
+            localStorage.setItem('inventory_suppliers', JSON.stringify(supplierData));
+            localStorage.setItem('inventory_warehouses', JSON.stringify(warehouseData));
+            localStorage.setItem('inventory_orders', JSON.stringify(orderData));
+
+            const indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              
+                indicator.innerHTML = '<i class="fas fa-sync fa-spin me-1"></i> Syncing...';
+                indicator.classList.remove('opacity-0');
+                indicator.classList.add('animate-sync');
+
+                setTimeout(() => {
+                    indicator.innerHTML = '<i class="fas fa-check-circle me-1"></i> Data Auto-Saved';
+                    indicator.classList.remove('animate-sync');
+                    
+                    setTimeout(() => {
+                        indicator.classList.add('opacity-0');
+                    }, 2000);
+                }, 800);
+            }
+
+            const lastSync = document.getElementById('last-sync-time');
+            if (lastSync) {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                lastSync.innerText = `| Last Sync: ${timeStr}`;
+            }
+        }
+
+        function getHistoricalProducts() {
+            const endDate = document.getElementById('logEndDate')?.value || '';
+            if (!endDate) return productData;
+
+            return productData.map(p => {
+                const futureMovements = movementsData.filter(m => {
+                    const mDate = m.timestamp.split(' ')[0];
+                    return m.productSku === p.sku && mDate > endDate;
+                });
+                const futureQty = futureMovements.reduce((sum, m) => sum + m.qtyChange, 0);
+                return { ...p, quantity_on_hand: p.quantity_on_hand - futureQty };
+            });
+        }
+
+        function calculateATS(products) {
+            return products.map(product => ({
+                ...product,
+                ats: (product.quantity_on_hand || 0) - (product.quantity_reserved || 0)
+            }));
+        }
+
+        function exportProductsToCSV() {
+            if (productData.length === 0) {
+                alert("No products to export.");
+                return;
+            }
+
+            const processed = calculateATS(productData);
+            const headers = ["SKU", "Name", "Category", "Status", "Supplier", "Stock On Hand", "Reserved", "ATS", "Cost Price"];
+            const csvRows = [
+                headers.join(','),
+                ...processed.map(p => [
+                    p.sku,
+                    `"${p.name.replace(/"/g, '""')}"`, 
+                    `"${p.category.replace(/"/g, '""')}"`,
+                    p.status || 'Active',
+                    `"${(p.supplier || '').replace(/"/g, '""')}"`,
+                    p.quantity_on_hand,
+                    p.quantity_reserved,
+                    p.ats,
+                    p.cost_price
+                ].join(','))
+            ];
+
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `inventory_export_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        function exportActivityLogToCSV() {
+            const filtered = getFilteredLogs();
+            if (filtered.length === 0) {
+                showToast('Export Error', 'No activity logs to export.', 'warning');
+                return;
+            }
+            const headers = ["Timestamp", "Admin", "Action", "SKU", "Product", "Qty Change", "Reason"];
+            const csvRows = [
+                headers.join(','),
+                ...filtered.map(m => [
+                    m.timestamp,
+                    m.performedBy || 'System',
+                    m.type,
+                    m.productSku,
+                    `"${m.productName.replace(/"/g, '""')}"`,
+                    m.qtyChange,
+                    `"${(m.reason || '').replace(/"/g, '""')}"`
+                ].join(','))
+            ];
+            const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `activity_log_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+            showToast('Export Successful', 'Activity log downloaded as CSV.', 'success');
+        }
+
+        function showCategoryDetails(category) {
+            currentActiveCategory = category;
+            const searchInput = document.getElementById('catDetailSearch');
+            if (searchInput) searchInput.value = '';
+            renderCategoryDetails();
+            new bootstrap.Modal(document.getElementById('categoryDetailModal')).show();
+        }
+
+        function renderCategoryDetails() {
+            const query = document.getElementById('catDetailSearch')?.value.toLowerCase() || '';
+            const sortVal = document.getElementById('catDetailSort')?.value || 'name-asc';
+            const displayProducts = getHistoricalProducts();
+            
+            let filtered = displayProducts.filter(p => 
+                p.category === currentActiveCategory && 
+                (p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query))
+            );
+
+            if (sortVal === 'name-asc') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortVal === 'stock-asc') {
+                filtered.sort((a, b) => a.quantity_on_hand - b.quantity_on_hand);
+            } else if (sortVal === 'stock-desc') {
+                filtered.sort((a, b) => b.quantity_on_hand - a.quantity_on_hand);
+            }
+
+            const tbody = document.getElementById('catDetailBody');
+            
+            document.getElementById('catDetailTitle').innerText = `Products in ${currentActiveCategory}`;
+            tbody.innerHTML = filtered.map(p => `
+                <tr class="border-b border-slate-50">
+                    <td class="font-mono text-xs text-slate-500">${p.sku}</td>
+                    <td class="font-semibold text-slate-800">${p.name}</td>
+                    <td class="text-end font-bold ${p.quantity_on_hand < 10 ? 'text-red-600' : 'text-emerald-600'}">${p.quantity_on_hand}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="3" class="text-center py-8 text-slate-400">No products found matching your search.</td></tr>';
+        }
+
+        function exportCategoryToPDF() {
+            const query = document.getElementById('catDetailSearch')?.value.toLowerCase() || '';
+            const sortVal = document.getElementById('catDetailSort')?.value || 'name-asc';
+            const displayProducts = getHistoricalProducts();
+            
+            let filtered = displayProducts.filter(p => 
+                p.category === currentActiveCategory && 
+                (p.name.toLowerCase().includes(query) || p.sku.toLowerCase().includes(query))
+            );
+
+            if (sortVal === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+            else if (sortVal === 'stock-asc') filtered.sort((a, b) => a.quantity_on_hand - b.quantity_on_hand);
+            else if (sortVal === 'stock-desc') filtered.sort((a, b) => b.quantity_on_hand - a.quantity_on_hand);
+
+            const maxStock = Math.max(...filtered.map(p => p.quantity_on_hand), 1);
+            const totalValue = filtered.reduce((sum, p) => sum + (p.quantity_on_hand * (p.cost_price || 0)), 0);
+            const avgStock = filtered.length > 0 ? (filtered.reduce((sum, p) => sum + p.quantity_on_hand, 0) / filtered.length).toFixed(1) : 0;
+            const adminName = currentUser ? currentUser.name : 'System';
+
+            const printWindow = window.open('', '_blank', 'width=900,height=700');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Category Report - ${currentActiveCategory}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Poppins', sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+                        .header { border-bottom: 2px solid #10b981; margin-bottom: 30px; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+                        h1 { color: #059669; margin: 0; font-size: 24px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #f0fdf4; text-align: left; padding: 12px; border: 1px solid #d1fae5; font-size: 11px; text-transform: uppercase; color: #065f46; letter-spacing: 0.05em; }
+                        td { padding: 12px; border: 1px solid #f1f5f9; font-size: 13px; }
+                        .low-stock { color: #f59e0b; font-weight: bold; }
+                        .out-of-stock-row { background-color: #fef2f2 !important; }
+                        .oos-text { color: #dc2626; font-weight: 800; }
+                        .oos-badge { background: #dc2626; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+                        .bar-container { width: 120px; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; display: inline-block; margin-right: 8px; }
+                        .bar-fill { height: 100%; background: #10b981; border-radius: 4px; }
+                        .bar-fill.low { background: #f59e0b; }
+                        .bar-fill.none { background: #dc2626; }
+                        .summary-container { display: flex; gap: 20px; margin-bottom: 30px; }
+                        .summary-card { flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; border-left: 5px solid #10b981; }
+                        .summary-card .label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+                        .summary-card .value { font-size: 20px; font-weight: 800; color: #059669; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+                        .watermark {
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%) rotate(-45deg);
+                            font-size: 80px;
+                            color: rgba(0, 0, 0, 0.03);
+                            font-weight: 900;
+                            z-index: -1000;
+                            pointer-events: none;
+                            white-space: nowrap;
+                            text-transform: uppercase;
+                            user-select: none;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="watermark">INTERNAL - ${adminName}</div>
+                    <div class="header">
+                        <div>
+                            <h1>Category Inventory Report</h1>
+                            <p style="margin: 5px 0 0 0; font-size: 14px;">Category: <strong>${currentActiveCategory}</strong></p>
+                        </div>
+                        <div style="text-align: right; font-size: 12px; color: #64748b;">
+                            Date: ${new Date().toLocaleString()}<br>
+                            Total Items: ${filtered.length}
+                        </div>
+                    </div>
+                    <div class="summary-container">
+                        <div class="summary-card">
+                            <div class="label">Total Category Value</div>
+                            <div class="value">₱${totalValue.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="label">Average Stock level</div>
+                            <div class="value">${avgStock} Units</div>
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th>SKU</th><th>Product Name</th><th>Visual Stock</th><th>Qty</th><th>Status</th></tr></thead>
+                        <tbody>
+                            ${filtered.map(p => {
+                                const isOOS = p.quantity_on_hand <= 0;
+                                const isLow = p.quantity_on_hand < 10 && !isOOS;
+                                const barWidth = (p.quantity_on_hand / maxStock) * 100;
+                                
+                                return `
+                                <tr class="${isOOS ? 'out-of-stock-row' : ''}">
+                                    <td style="display: flex; align-items: flex-start; gap: 12px; padding: 15px 12px;">
+                                        <a href="logo.png" target="_blank" title="View Full Size" style="text-decoration: none;">
+                                            <img src="logo.png" style="width: 40px; height: 40px; object-fit: contain; background: #fff; padding: 2px; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer;">
+                                        </a>
+                                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                                            <span style="font-family: monospace; font-size: 11px; font-weight: bold; color: #475569;">${p.sku}</span>
+                                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=${encodeURIComponent(window.location.href.split('?')[0] + '?sku=' + p.sku)}" style="width: 50px; height: 50px; border: 1px solid #f1f5f9; padding: 2px;" alt="QR">
+                                        </div>
+                                    </td>
+                                    <td style="font-weight: 500;">${p.name}</td>
+                                    <td>
+                                        <div class="bar-container"><div class="bar-fill ${isOOS ? 'none' : (isLow ? 'low' : '')}" style="width: ${barWidth}%"></div></div>
+                                    </td>
+                                    <td class="${isOOS ? 'oos-text' : (isLow ? 'low-stock' : '')}">${p.quantity_on_hand}</td>
+                                    <td>${isOOS ? '<span class="oos-badge">SOLD OUT</span>' : (p.status || 'Active')}</td>
+                                </tr>`;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <div class="footer">InventoryPro System - Confidential Internal Document</div>
+                    <script>window.onload = function() { window.print(); window.close(); };<\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            showToast('PDF Export', 'Category report sent to print.', 'success');
+        }
+
+        function importCSV() {
+            document.getElementById('csvImportInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r?\n/);
+                if (lines.length <= 1) return;
+
+                const rows = lines.slice(1).filter(l => l.trim() !== '');
+                rows.forEach(line => {
+                   
+                    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (parts.length < 8) return;
+
+                    const sku = parts[0].trim();
+                    const name = parts[1].replace(/^"|"$/g, '').trim();
+                    const category = parts[2].replace(/^"|"$/g, '').trim();
+                    const status = parts[3] ? parts[3].replace(/^"|"$/g, '').trim() : 'Active';
+                    const supplier = parts[4] ? parts[4].replace(/^"|"$/g, '').trim() : '';
+                    const stock = parseInt(parts[5]) || 0;
+                    const reserved = parseInt(parts[6]) || 0;
+                    const cost = parseFloat(parts[8]) || 0;
+
+                    if (!sku || !name) return;
+
+                    const existingIndex = productData.findIndex(p => p.sku === sku);
+                    const productObj = {
+                        sku, name, category, status, supplier,
+                        quantity_on_hand: stock, 
+                        quantity_reserved: reserved, 
+                        cost_price: cost
+                    };
+
+                    if (existingIndex > -1) {
+                        productData[existingIndex] = productObj;
+                    } else {
+                        productData.push(productObj);
+                    }
+                });
+
+                saveState();
+                refreshUI();
+                alert('Inventory bulk import complete!');
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Active': return 'bg-green-100 text-green-700';
+                case 'Discontinued': return 'bg-slate-100 text-slate-700';
+                case 'Out of Stock': return 'bg-red-100 text-red-700';
+                case 'Shipped': return 'bg-blue-100 text-blue-700';
+                case 'Returned': return 'bg-amber-100 text-amber-700';
+                default: return 'bg-slate-100 text-slate-700';
+            }
+        }
+
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            const bgClass = type === 'warning' ? 'bg-amber-500' : (type === 'danger' ? 'bg-red-500' : 'bg-emerald-600');
+
+            const toastHTML = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <div class="font-bold border-b border-white/20 mb-1 pb-1">${title}</div>
+                            <div class="text-sm">${message}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', toastHTML);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+        }
+
+        function printReceipt(orderId) {
+            const order = orderData.find(o => o.id === orderId);
+            if (!order) return;
+
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Receipt - ${order.id}</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+                        .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #10b981; padding-bottom: 20px; }
+                        .header h1 { margin: 0; color: #059669; }
+                        .details { margin-bottom: 30px; display: flex; justify-content: space-between; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+                        td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; }
+                        .total { text-align: right; margin-top: 30px; font-size: 1.5rem; font-weight: bold; color: #059669; }
+                        .footer { margin-top: 50px; text-align: center; font-size: 0.875rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+                        @media print { .no-print { display: none; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>InventoryPro</h1>
+                        <p>Official Sales Receipt</p>
+                    </div>
+                    <div class="details">
+                        <div>
+                            <p><strong>Order ID:</strong> ${order.id}</p>
+                            <p><strong>Date:</strong> ${order.timestamp}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p><strong>Customer:</strong> ${order.customer}</p>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product Description</th>
+                                <th>SKU</th>
+                                <th>Qty</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>${order.productName}</td>
+                                <td style="font-family: monospace;">${order.productSku}</td>
+                                <td>${order.qty}</td>
+                                <td>₱${(order.total / order.qty).toFixed(2)}</td>
+                                <td>₱${order.total.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="total">Grand Total: ₱${order.total.toFixed(2)}</div>
+                    <div class="footer">
+                        <p>Thank you for shopping with us!</p>
+                        <p>&copy; ${new Date().getFullYear()} InventoryPro System</p>
+                    </div>
+                    <script>
+                        window.onload = function() { window.print(); window.close(); };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function printAllOrders() {
+            if (orderData.length === 0) {
+                showToast('Print Error', 'No orders available to print.', 'warning');
+                return;
+            }
+            const adminName = currentUser ? currentUser.name : 'System';
+            const printWindow = window.open('', '_blank', 'width=1000,height=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Full Orders Report</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Poppins', sans-serif; padding: 40px; color: #1e293b; font-size: 12px; }
+                        .header { border-bottom: 2px solid #10b981; margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+                        h1 { color: #059669; margin: 0; font-size: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #f8fafc; text-align: left; padding: 10px; border: 1px solid #e2e8f0; text-transform: uppercase; font-size: 10px; color: #64748b; }
+                        td { padding: 10px; border: 1px solid #f1f5f9; }
+                        .status-pill { padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: bold; }
+                        .footer { margin-top: 30px; text-align: center; font-size: 9px; color: #94a3b8; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div><h1>Master Orders List</h1><p>Generated by: <strong>${adminName}</strong></p></div>
+                        <div style="text-align: right">Date: ${new Date().toLocaleString()}<br>Total Orders: ${orderData.length}</div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Status</th><th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${orderData.map(o => `
+                                <tr>
+                                    <td>${o.id}</td><td>${o.customer}</td><td>${o.productName}</td><td>${o.qty}</td>
+                                    <td style="font-weight:bold">₱${o.total.toFixed(2)}</td>
+                                    <td>${o.status}</td><td>${o.timestamp}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="footer">InventoryPro System - Confidential Report</div>
+                    <script>window.onload = function() { window.print(); window.close(); };<\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function exportLowStockToPDF() {
+            const lowStockProducts = productData.filter(p => p.quantity_on_hand < 10);
+
+            if (lowStockProducts.length === 0) {
+                showToast('Report Info', 'No products currently have low stock.', 'info');
+                return;
+            }
+
+            const adminName = currentUser ? currentUser.name : 'System';
+            const printWindow = window.open('', '_blank', 'width=900,height=700');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Low Stock Report</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Poppins', sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+                        .header { border-bottom: 2px solid #ef4444; margin-bottom: 30px; padding-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+                        h1 { color: #dc2626; margin: 0; font-size: 24px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #fef2f2; text-align: left; padding: 12px; border: 1px solid #fecaca; font-size: 11px; text-transform: uppercase; color: #b91c1c; letter-spacing: 0.05em; }
+                        td { padding: 12px; border: 1px solid #fde0dc; font-size: 13px; }
+                        .low-stock-qty { color: #dc2626; font-weight: bold; }
+                        .summary-container { display: flex; gap: 20px; margin-bottom: 30px; }
+                        .summary-card { flex: 1; background: #fff7ed; border: 1px solid #fed7aa; padding: 15px; border-radius: 12px; border-left: 5px solid #f97316; }
+                        .summary-card .label { font-size: 10px; font-weight: 700; color: #9a3412; text-transform: uppercase; margin-bottom: 5px; }
+                        .summary-card .value { font-size: 20px; font-weight: 800; color: #ea580c; }
+                        .footer { margin-top: 40px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; }
+                        .watermark {
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%) rotate(-45deg);
+                            font-size: 80px;
+                            color: rgba(0, 0, 0, 0.03);
+                            font-weight: 900;
+                            z-index: -1000;
+                            pointer-events: none;
+                            white-space: nowrap;
+                            text-transform: uppercase;
+                            user-select: none;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="watermark">INTERNAL - ${adminName}</div>
+                    <div class="header">
+                        <div>
+                            <h1>Low Stock Inventory Report</h1>
+                            <p style="margin: 5px 0 0 0; font-size: 14px;">Generated on: <strong>${new Date().toLocaleDateString()}</strong></p>
+                        </div>
+                        <div style="text-align: right; font-size: 12px; color: #64748b;">
+                            Total Low Stock Items: ${lowStockProducts.length}
+                        </div>
+                    </div>
+                    <table>
+                        <thead><tr><th>SKU</th><th>Product Name</th><th>Category</th><th>Supplier</th><th>Stock on Hand</th></tr></thead>
+                        <tbody>
+                            ${lowStockProducts.map(p => `
+                                <tr>
+                                    <td>${p.sku}</td>
+                                    <td>${p.name}</td>
+                                    <td>${p.category}</td>
+                                    <td>${p.supplier || 'N/A'}</td>
+                                    <td class="low-stock-qty">${p.quantity_on_hand}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="footer">InventoryPro System - Confidential Internal Document</div>
+                    <script>window.onload = function() { window.print(); window.close(); };<\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            showToast('PDF Export', 'Low Stock report sent to print.', 'success');
+        }
+
+        function shipOrder(orderId) {
+            const order = orderData.find(o => o.id === orderId);
+            if (order && order.status === 'Pending') {
+                order.status = 'Shipped';
+                movementsData.push({
+                    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    productSku: order.productSku,
+                    productName: order.productName,
+                    type: 'Sales Shipment',
+                    qtyChange: 0, 
+                    reason: `Order ${orderId} marked as Shipped`,
+                    performedBy: currentUser ? currentUser.name : 'System'
+                });
+                saveState();
+                refreshUI();
+                showToast('Status Updated', `Order ${orderId} is now marked as Shipped.`, 'success');
+            }
+        }
+
+        function returnOrder(orderId) {
+            const order = orderData.find(o => o.id === orderId);
+            if (!order || order.status === 'Returned') return;
+
+            orderIdToReturn = orderId;
+            document.getElementById('returnModalText').innerText = `Process return for Order ${orderId}? This will add ${order.qty} units of ${order.productName} back to stock.`;
+            const modal = new bootstrap.Modal(document.getElementById('confirmReturnModal'));
+            modal.show();
+        }
+
+        document.getElementById('confirmReturnBtn').onclick = function() {
+            const order = orderData.find(o => o.id === orderIdToReturn);
+            if (!order) return;
+
+            const product = productData.find(p => p.sku === order.productSku);
+            if (product) {
+                product.quantity_on_hand += order.qty;
+                
+                movementsData.push({
+                    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    productSku: order.productSku,
+                    productName: order.productName,
+                    type: 'Return',
+                    qtyChange: order.qty,
+                    reason: `Return of Order ${order.id}`,
+                    performedBy: currentUser ? currentUser.name : 'System'
+                });
+                
+                order.status = 'Returned';
+                saveState();
+                refreshUI();
+                showToast('Returned', 'Order returned and inventory restocked.', 'success');
+            }
+            bootstrap.Modal.getInstance(document.getElementById('confirmReturnModal')).hide();
+        };
+
+        function renderDashboardCharts() {
+      
+            const trendCtx = document.getElementById('stockTrendChart').getContext('2d');
+            const displayProducts = getHistoricalProducts();
+
+            if (stockTrendChartInstance) stockTrendChartInstance.destroy();
+            
+            const trendLabels = Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
+            const trendData = Array.from({length: 30}, () => Math.floor(Math.random() * 200) + 800);
+
+            stockTrendChartInstance = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'Total Units',
+                        data: trendData,
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false }, x: { display: false } }
+                }
+            });
+
+            const pieCtx = document.getElementById('categoryPieChart').getContext('2d');
+            if (categoryPieChartInstance) categoryPieChartInstance.destroy();
+
+            const categories = [...new Set(displayProducts.map(p => p.category))];
+            const categoryStock = categories.map(cat => 
+                displayProducts.filter(p => p.category === cat).reduce((sum, p) => sum + p.quantity_on_hand, 0)
+            );
+
+            categoryPieChartInstance = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: categoryStock,
+                        backgroundColor: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 800,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { family: 'Poppins', size: 10 } }
+                        }
+                    },
+                    onClick: (evt, elements, chart) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const label = chart.data.labels[index];
+                            showCategoryDetails(label);
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChartInstance) revenueChartInstance.destroy();
+
+            const shippedRevenue = orderData.filter(o => o.status === 'Shipped').reduce((sum, o) => sum + o.total, 0);
+            const pendingRevenue = orderData.filter(o => o.status === 'Pending').reduce((sum, o) => sum + o.total, 0);
+
+            revenueChartInstance = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Shipped Orders', 'Pending Orders'],
+                    datasets: [{
+                        label: 'Revenue (PHP)',
+                        data: [shippedRevenue, pendingRevenue],
+                        backgroundColor: ['#059669', '#f59e0b'],
+                        borderRadius: 5,
+                        maxBarThickness: 50
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { beginAtZero: true, ticks: { callback: function(value) { return '₱' + value.toLocaleString(); }, font: { size: 10 } } }
+                    }
+                }
+            });
+
+            const barCtx = document.getElementById('stockLevelBarChart').getContext('2d');
+            if (stockBarChartInstance) stockBarChartInstance.destroy();
+
+            const topProducts = [...displayProducts]
+                .sort((a, b) => b.quantity_on_hand - a.quantity_on_hand)
+                .slice(0, 10);
+
+            stockBarChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: topProducts.map(p => p.name),
+                    datasets: [{
+                        label: 'Stock Level',
+                        data: topProducts.map(p => p.quantity_on_hand),
+                        backgroundColor: '#10b981',
+                        borderRadius: 5,
+                        maxBarThickness: 30
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }
+                    }
+                }
+            });
+        }
+
+        function renderMovementsTable() {
+            const tbody = document.getElementById('movements-table-body');
+            if (!tbody) return;
+
+            const query = document.getElementById('movementSearch')?.value.toLowerCase() || '';
+            
+            const filtered = movementsData.filter(m => 
+                m.productName.toLowerCase().includes(query) || 
+                m.productSku.toLowerCase().includes(query) ||
+                m.type.toLowerCase().includes(query) ||
+                (m.reason && m.reason.toLowerCase().includes(query))
+            );
+            
+            const sorted = [...filtered].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 10);
+            
+            tbody.innerHTML = sorted.map(m => `
+                <tr>
+                    <td class="ps-6 py-3 text-slate-500 font-mono text-xs">${m.timestamp}</td>
+                    <td class="font-semibold text-slate-800">${m.productName}</td>
+                    <td><span class="status-badge ${m.type === 'Purchase Receipt' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${m.type}</span></td>
+                    <td class="${m.qtyChange > 0 ? 'text-green-600' : 'text-red-600'} font-bold">${m.qtyChange > 0 ? '+' : ''}${m.qtyChange}</td>
+                    <td>Main Warehouse</td>
+                    <td class="text-slate-500">${m.reason}</td>
+                </tr>
+            `).join('') || '<tr><td colspan="6" class="text-center py-4 text-slate-400">No movements logged yet</td></tr>';
+        }
+
+        function getFilteredLogs() {
+            const query = document.getElementById('logSearch').value.toLowerCase();
+            const start = document.getElementById('logStartDate').value;
+            const end = document.getElementById('logEndDate').value;
+            const type = document.getElementById('logActionType').value;
+            
+            return movementsData.filter(m => {
+                const matchesQuery = !query || m.productName.toLowerCase().includes(query) || m.productSku.toLowerCase().includes(query);
+                const mDate = m.timestamp.split(' ')[0];
+                const matchesDate = (!start || mDate >= start) && (!end || mDate <= end);
+                const matchesType = type === 'All' || m.type === type;
+                return matchesQuery && matchesDate && matchesType;
+            }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        function updateActivityChart(filteredData) {
+            const canvas = document.getElementById('activityChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (activityChartInstance) activityChartInstance.destroy();
+
+            const dataMap = {};
+            const mode = document.getElementById('logChartMode')?.value || 'volume';
+
+            filteredData.forEach(m => {
+                const val = mode === 'volume' ? Math.abs(m.qtyChange) : m.qtyChange;
+                dataMap[m.type] = (dataMap[m.type] || 0) + val;
+            });
+
+            activityChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(dataMap),
+                    datasets: [{
+                        label: mode === 'volume' ? 'Volume of Change' : 'Net Qty Change',
+                        data: Object.values(dataMap),
+                        backgroundColor: '#10b981',
+                        borderRadius: 6,
+                        maxBarThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function exportActivityLogToPDF() {
+            const filtered = getFilteredLogs();
+            if (filtered.length === 0) {
+                showToast('Export Error', 'No data available to export.', 'danger');
+                return;
+            }
+
+            const adminName = currentUser ? currentUser.name : 'System';
+            const printWindow = window.open('', '_blank', 'width=1000,height=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Activity Log Report</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        body { font-family: 'Poppins', sans-serif; padding: 40px; color: #1e293b; font-size: 12px; }
+                        .header { border-bottom: 2px solid #10b981; margin-bottom: 20px; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end; }
+                        h1 { color: #059669; margin: 0; font-size: 20px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th { background: #f8fafc; text-align: left; padding: 10px; border: 1px solid #e2e8f0; text-transform: uppercase; font-size: 10px; color: #64748b; }
+                        td { padding: 10px; border: 1px solid #f1f5f9; }
+                        .pos { color: #059669; font-weight: bold; }
+                        .neg { color: #dc2626; font-weight: bold; }
+                        .footer { margin-top: 30px; text-align: center; font-size: 9px; color: #94a3b8; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <div>
+                            <h1>Activity History Report</h1>
+                            <p>Generated by: <strong>${adminName}</strong></p>
+                        </div>
+                        <div style="text-align: right">
+                            Date: ${new Date().toLocaleString()}<br>
+                            Records: ${filtered.length}
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Admin</th>
+                                <th>Action Type</th>
+                                <th>Product Details</th>
+                                <th>Qty</th>
+                                <th>Reason</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filtered.map(m => `
+                                <tr>
+                                    <td style="font-family: monospace">${m.timestamp}</td>
+                                    <td>${m.performedBy || 'System'}</td>
+                                    <td>${m.type}</td>
+                                    <td><strong>${m.productSku}</strong><br>${m.productName}</td>
+                                    <td class="${m.qtyChange > 0 ? 'pos' : 'neg'}">${m.qtyChange > 0 ? '+' : ''}${m.qtyChange}</td>
+                                    <td>${m.reason || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="footer">Confidential Inventory Audit Report &copy; ${new Date().getFullYear()} InventoryPro</div>
+                    <script>window.onload = function() { window.print(); window.close(); };<\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function renderActivityLog() {
+            const tbody = document.getElementById('activity-log-table-body');
+            if (!tbody) return;
+            
+            const filtered = getFilteredLogs();
+            
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">No matching logs found.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map(m => `
+                <tr class="border-b border-slate-50">
+                    <td class="text-slate-500 py-3 font-mono text-xs">${m.timestamp}</td>
+                    <td class="font-bold text-emerald-700">${m.performedBy || 'System'}</td>
+                    <td><span class="status-badge ${m.qtyChange > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${m.type}</span></td>
+                    <td class="font-semibold text-slate-800">${m.productName}</td>
+                    <td class="font-bold">${m.qtyChange > 0 ? '+' : ''}${m.qtyChange}</td>
+                    <td class="text-slate-600">${m.reason}</td>
+                </tr>
+            `).join('');
+
+            updateActivityChart(filtered);
+            const container = document.getElementById('logContainer');
+            if (container) {
+                setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+            }
+
+            updateStats();
+        }
+
+        function renderOrdersTable() {
+            const tbody = document.getElementById('order-table-body');
+            if (!tbody) return;
+            
+            if (orderData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-400">No orders placed yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = [...orderData].reverse().map(o => `
+                <tr class="border-b border-slate-50">
+                    <td class="font-mono text-xs text-slate-500 py-3">${o.id}</td>
+                    <td class="font-semibold text-slate-800">${o.customer}</td>
+                    <td class="text-slate-600">${o.productName}</td>
+                    <td class="text-slate-800">${o.qty}</td>
+                    <td class="font-bold text-emerald-600">₱${o.total.toFixed(2)}</td>
+                    <td><span class="status-badge ${getStatusBadgeClass(o.status)}">${o.status}</span></td>
+                    <td class="text-slate-500 text-xs">${o.timestamp}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button onclick="printReceipt('${o.id}')" class="btn btn-sm btn-light text-slate-500 border hover:text-slate-800" title="Print Receipt">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            ${o.status === 'Pending' ? `
+                            <button onclick="shipOrder('${o.id}')" class="btn btn-sm btn-light text-blue-500 border hover:text-blue-600" title="Mark as Shipped">
+                                <i class="fas fa-truck"></i>
+                            </button>
+                            ` : ''}
+                            ${o.status !== 'Returned' ? `
+                            <button onclick="returnOrder('${o.id}')" class="btn btn-sm btn-light text-amber-500 border hover:text-amber-600" title="Return Order">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderSuppliersTable() {
+            const tbody = document.getElementById('supplier-table-body');
+            if (!tbody) return;
+            
+            if (supplierData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">No suppliers added yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = supplierData.map((s, idx) => `
+                <tr class="border-b border-slate-50">
+                    <td class="font-semibold text-slate-800 py-3">${s.companyName}</td>
+                    <td>${s.contactName || '-'}</td>
+                    <td>
+                        <div class="text-xs text-slate-500">${s.email || '-'}</div>
+                        <div class="text-xs text-slate-500">${s.phone || '-'}</div>
+                    </td>
+                    <td class="text-slate-600 text-xs truncate max-w-xs">${s.address || '-'}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button data-bs-toggle="modal" data-bs-target="#addSupplierModal" data-edit-idx="${idx}" class="btn btn-sm btn-light text-blue-400 border hover:text-blue-600" title="Edit Supplier"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteEntity('supplier', ${idx})" class="btn btn-sm btn-light text-red-400 border hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderWarehousesTable() {
+            const tbody = document.getElementById('warehouse-table-body');
+            if (!tbody) return;
+            
+            if (warehouseData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400">No warehouses added yet.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = warehouseData.map((w, idx) => `
+                <tr class="border-b border-slate-50">
+                    <td class="font-semibold text-slate-800 py-3">${w.name}</td>
+                    <td class="text-slate-600">${w.location}</td>
+                    <td class="text-slate-600">${w.manager || '-'}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button data-bs-toggle="modal" data-bs-target="#addWarehouseModal" data-edit-idx="${idx}" class="btn btn-sm btn-light text-blue-400 border hover:text-blue-600" title="Edit Warehouse"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteEntity('warehouse', ${idx})" class="btn btn-sm btn-light text-red-400 border hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteProduct(sku) {
+            if (confirm(`Are you sure you want to delete product ${sku}? This action cannot be undone and will remove all associated stock data.`)) {
+                productData = productData.filter(p => p.sku !== sku);
+                saveState();
+                refreshUI();
+            }
+        }
+
+        function deleteEntity(type, index) {
+            if (confirm(`Are you sure you want to delete this ${type}?`)) {
+                if (type === 'supplier') supplierData.splice(index, 1);
+                else warehouseData.splice(index, 1);
+                saveState();
+                refreshUI();
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Active': return 'bg-green-100 text-green-700';
+                case 'Discontinued': return 'bg-slate-100 text-slate-700';
+                case 'Out of Stock': return 'bg-red-100 text-red-700';
+                case 'Pending': return 'bg-amber-100 text-amber-700';
+                case 'Shipped': return 'bg-blue-100 text-blue-700';
+                case 'Returned': return 'bg-amber-100 text-amber-700';
+                default: return 'bg-slate-100 text-slate-700';
+            }
+        }
+
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            const bgClass = type === 'warning' ? 'bg-amber-500' : (type === 'danger' ? 'bg-red-500' : (type === 'emerald' ? 'bg-emerald-600' : 'bg-emerald-600'));
+
+            const toastHTML = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <div class="font-bold border-b border-white/20 mb-1 pb-1">${title}</div>
+                            <div class="text-sm">${message}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', toastHTML);
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+        }
+
+        function renderProductsTable() {
+            const processedProducts = calculateATS(productData);
+            const tbody = document.getElementById('product-table-body');
+            const select = document.getElementById('adjProduct');
+            const orderProductSelect = document.getElementById('ordProduct');
+            const supplierSelect = document.getElementById('newSupplier');
+            const productSort = document.getElementById('productSort')?.value || 'default';
+            
+            if (supplierSelect) {
+                supplierSelect.innerHTML = '<option value="">No Supplier Selected</option>' + 
+                    supplierData.map(s => `<option value="${s.companyName}">${s.companyName}</option>`).join('');
+            }
+            
+            if (select) {
+                select.innerHTML = '<option value="">Select a product...</option>' + 
+                    processedProducts.map(p => `<option value="${p.sku}">${p.name} (${p.sku})</option>`).join('');
+            }
+            
+            if (orderProductSelect) {
+                orderProductSelect.innerHTML = '<option value="">Select a product...</option>' + 
+                    processedProducts.map(p => `<option value="${p.sku}" data-price="${p.cost_price * 1.5}">${p.name} - ₱${(p.cost_price * 1.5).toFixed(2)}</option>`).join('');
+            }
+
+            let productsToSort = [...processedProducts];
+
+            if (productSort !== 'default') {
+                productsToSort.sort((a, b) => {
+                    if (productSort === 'name-asc') return a.name.localeCompare(b.name);
+                    if (productSort === 'name-desc') return b.name.localeCompare(a.name);
+                    if (productSort === 'stock-asc') return a.quantity_on_hand - b.quantity_on_hand;
+                    if (productSort === 'stock-desc') return b.quantity_on_hand - a.quantity_on_hand;
+                    
+                    const dateA = a.expiryDate ? new Date(a.expiryDate) : null;
+                    const dateB = b.expiryDate ? new Date(b.expiryDate) : null;
+
+                    if (productSort === 'expiry-asc') {
+                        if (!dateA && !dateB) return 0;
+                        if (!dateA) return 1; 
+                        if (!dateB) return -1; 
+                        return dateA.getTime() - dateB.getTime();
+                    }
+                    if (productSort === 'expiry-desc') {
+                        if (!dateA && !dateB) return 0;
+                        if (!dateA) return -1;
+                        if (!dateB) return 1;
+                        return dateB.getTime() - dateA.getTime();
+                    }
+                    return 0;
+                });
+            }
+
+            const renderLimit = 100;
+            const itemsToDisplay = productsToSort.slice(0, renderLimit);
+
+            if (!tbody) return; 
+            
+            if (productsToSort.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">No products found. Add your first product to get started.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = itemsToDisplay.map(product => {
+                const expiryDate = product.expiryDate;
+                let expiryDisplay = 'N/A';
+                let expiryClass = '';
+                if (expiryDate) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const productExpiry = new Date(expiryDate);
+                    productExpiry.setHours(0, 0, 0, 0);
+
+                    if (productExpiry < today) {
+                        expiryDisplay = 'Expired';
+                        expiryClass = 'text-red-600 font-bold';
+                    } else {
+                        expiryDisplay = expiryDate;
+                    }
+                }
+
+                return `
+                <tr class="border-b border-slate-50">
+                    <td><input type="checkbox" class="product-checkbox" value="${product.sku}" onchange="updateBulkDeleteButton()"></td>
+                    <td class="font-mono text-slate-500 py-3">${product.sku}</td>
+                    <td class="font-semibold text-slate-800 flex items-center gap-2">
+                        <img src="${product.imageUrl || 'logo.png'}" class="w-8 h-8 rounded object-contain border border-slate-200">
+                        ${product.name}
+                    </td>
+                    <td class="text-slate-600">${product.category}</td>
+                    <td><span class="status-badge ${getStatusBadgeClass(product.status || 'Active')}">${product.status || 'Active'}</span></td>
+                    <td class="text-slate-500 text-xs italic">${product.supplier || 'N/A'}</td>
+                    <td class="${expiryClass}">${expiryDisplay}</td>
+                    <td class="font-bold ${product.quantity_on_hand < 10 ? 'text-red-600' : 'text-slate-800'}">${product.quantity_on_hand}</td>
+                    <td class="text-blue-600 font-bold">${product.ats}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button data-bs-toggle="modal" data-bs-target="#addProductModal" data-edit-sku="${product.sku}" class="btn btn-sm btn-light text-blue-400 border hover:text-blue-600" title="Edit Product">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteProduct('${product.sku}')" class="btn btn-sm btn-light text-red-400 border hover:text-red-600" title="Delete Product">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            }).join('');
+
+            if (productsToSort.length > renderLimit) {
+                tbody.insertAdjacentHTML('beforeend', `<tr><td colspan="10" class="text-center py-3 text-slate-400 text-xs italic">Showing first ${renderLimit} of ${productsToSort.length} products. Use search to find others.</td></tr>`);
+            }
+        }
+
+        function toggleSelectAllProducts(checked) {
+            document.querySelectorAll('.product-checkbox').forEach(cb => cb.checked = checked);
+            updateBulkDeleteButton();
+        }
+
+        function updateBulkDeleteButton() {
+            const selected = document.querySelectorAll('.product-checkbox:checked');
+            const btn = document.getElementById('bulkDeleteBtn');
+            const count = document.getElementById('selectedCount');
+            if(selected.length > 0) {
+                btn.classList.remove('hidden');
+                count.innerText = selected.length;
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        function bulkDeleteProducts() {
+            const selectedCbs = document.querySelectorAll('.product-checkbox:checked');
+            const skus = Array.from(selectedCbs).map(cb => cb.value);
+            const productsToDelete = productData.filter(p => skus.includes(p.sku));
+            const totalValue = productsToDelete.reduce((sum, p) => sum + (p.quantity_on_hand * (p.cost_price || 0)), 0);
+            
+            if (confirm(`Are you sure you want to delete ${skus.length} products?\n\nTotal Inventory Value Loss: ₱${totalValue.toLocaleString()}\n\nThis action cannot be undone.`)) {
+                productData = productData.filter(p => !skus.includes(p.sku));
+                saveState();
+                refreshUI();
+                showToast('Bulk Delete', 'Selected products removed.', 'danger');
+            }
+        }
+
+        function updateStats() {
+            const displayProducts = getHistoricalProducts();
+
+            document.getElementById('stat-total-products').innerText = displayProducts.length;
+            document.getElementById('stat-low-stock').innerText = displayProducts.filter(p => p.quantity_on_hand < 10).length;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expiredCount = displayProducts.filter(p => {
+                if (!p.expiryDate) return false;
+                const expiry = new Date(p.expiryDate);
+                expiry.setHours(0, 0, 0, 0);
+                return expiry < today;
+            }).length;
+            
+            const expiredStat = document.getElementById('stat-expired-products');
+            if (expiredStat) expiredStat.innerText = expiredCount;
+            
+            const totalValue = displayProducts.reduce((sum, p) => sum + (p.quantity_on_hand * (p.cost_price || 0)), 0);
+            document.getElementById('stat-inventory-value').innerText = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'PHP',
+                maximumFractionDigits: 1
+            }).format(totalValue / 1000) + 'k';
+        }
+
+        function refreshUI() {
+            renderProductsTable();
+            renderMovementsTable();
+            renderSuppliersTable();
+            renderWarehousesTable();
+            renderOrdersTable();
+            renderActivityLog();
+            renderDashboardCharts();
+            updateStats();
+            updateNotifications();
+        }
+
+        function sendSupplierEmail(product) {
+            const supplier = supplierData.find(s => s.companyName === product.supplier);
+            const emailTo = supplier ? (supplier.email || 'no-email@supplier.com') : 'nathanielbusto3@gmail.com';
+            
+            console.log(`[AUTO-MAIL]: Sending reorder request to ${emailTo} for ${product.name}`);
+            
+            showToast('Auto-Email Sent', `Reorder request for ${product.name} has been sent to ${product.supplier}.`, 'emerald');
+            successSound.play().catch(e => {});
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('flex');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('z-50');
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('h-full');
+        }
+
+        function showSection(section) {
+          
+            document.getElementById('dashboard-section').classList.add('hidden');
+            document.getElementById('products-section').classList.add('hidden');
+            document.getElementById('suppliers-section').classList.add('hidden');
+            document.getElementById('warehouses-section').classList.add('hidden');
+            document.getElementById('intro-view').classList.add('hidden');
+            document.getElementById('orders-section').classList.add('hidden');
+            document.getElementById('activity-log-section').classList.add('hidden');
+            document.getElementById('settings-section').classList.add('hidden');
+            
+            document.querySelectorAll('input[placeholder*="Search"]').forEach(input => input.value = '');
+
+            document.querySelectorAll('.nav-link-custom').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            const titleMap = {
+                'dashboard': { title: 'Dashboard', id: 'dashboard-section' },
+                'products': { title: 'Product Catalog', id: 'products-section' },
+                'orders': { title: 'Order Fulfillment', id: 'orders-section' },
+                'suppliers': { title: 'Suppliers Management', id: 'suppliers-section' },
+                'warehouses': { title: 'Warehouse Locations', id: 'warehouses-section' },
+                'activity-log': { title: 'Detailed Activity Log', id: 'activity-log-section' },
+                'settings': { title: 'System Settings', id: 'settings-section' }
+            };
+
+            const config = titleMap[section];
+            const target = document.getElementById(config.id);
+            target.classList.remove('hidden');
+            target.classList.add('section-fade');
+            document.getElementById('section-title').innerText = config.title;
+            
+            event.currentTarget.classList.add('active');
+
+            if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('hidden')) {
+                toggleSidebar();
+            }
+        }
+
+        function completeSystemInit() {
+            refreshUI();
+            populateVoices();
+            startScanCountdown();
+            checkNetworkQuality(); 
+            
+            document.getElementById('volumeControl').value = appVolume;
+            document.getElementById('voiceSpeedControl').value = appVoiceSpeed;
+            document.getElementById('voiceSpeedValue').innerText = appVoiceSpeed + 'x';
+            document.getElementById('voicePitchControl').value = appVoicePitch;
+            document.getElementById('voicePitchValue').innerText = appVoicePitch + 'x';
+            changeVolume(appVolume);
+
+            const isDark = localStorage.getItem('dark_mode') === 'true';
+            document.getElementById('darkModeToggle').checked = isDark;
+            toggleDarkMode(isDark);
+
+            if (localStorage.getItem('auth_session') === 'true' && currentUser) {
+                showView('app-view');
+                showSection('dashboard');
+            } else {
+                showView('login-view');
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const skuParam = urlParams.get('sku');
+            const lastScannedSku = sessionStorage.getItem('last_scanned_sku');
+
+            if (skuParam && skuParam !== lastScannedSku && localStorage.getItem('auth_session') === 'true') {
+                showSection('products');
+                document.getElementById('productSearch').value = skuParam;
+                renderProductsTable();
+
+                setTimeout(() => {
+                    const product = productData.find(p => p.sku === skuParam);
+                    if (product) {
+                        sessionStorage.setItem('last_scanned_sku', skuParam);
+                        sessionStorage.setItem('last_scanned_time', Date.now().toString());
+                        startScanCountdown();
+                        document.getElementById('adjProduct').value = skuParam;
+                        new bootstrap.Modal(document.getElementById('stockAdjustmentModal')).show();
+                        speakNotification(`Scan successful. Product ${product.name} is ready for adjustment.`);
+                    }
+                    document.querySelectorAll('#product-table-body tr').forEach(row => {
+                        if (row.cells[0]?.innerText.trim() === skuParam) row.classList.add('row-highlight');
+                    });
+                }, 500);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            completeSystemInit();
+        });
+
+        document.getElementById('stockAdjustmentModal').addEventListener('shown.bs.modal', function () {
+            document.getElementById('adjQty').focus();
+        });
+
+        function updateOrderPrice() {
+            const select = document.getElementById('ordProduct');
+            const qty = document.getElementById('ordQty').value || 0;
+            const price = select.options[select.selectedIndex]?.dataset.price || 0;
+            document.getElementById('ordTotal').innerText = `₱${(price * qty).toFixed(2)}`;
+        }
+
+        document.getElementById('addSupplierModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (button && button.hasAttribute('data-edit-idx')) {
+                const idx = parseInt(button.getAttribute('data-edit-idx'));
+                editSupplierIdx = idx;
+                const s = supplierData[idx];
+                document.getElementById('supName').value = s.companyName;
+                document.getElementById('supContact').value = s.contactName || '';
+                document.getElementById('supPhone').value = s.phone || '';
+                document.getElementById('supEmail').value = s.email || '';
+                document.getElementById('supAddress').value = s.address || '';
+                document.querySelector('#addSupplierModal .modal-title').innerText = 'Edit Supplier';
+                document.querySelector('#supplierForm button[type="submit"]').innerText = 'Update Supplier';
+            } else {
+                editSupplierIdx = -1;
+                document.getElementById('supplierForm').reset();
+                document.querySelector('#addSupplierModal .modal-title').innerText = 'Add New Supplier';
+                document.querySelector('#supplierForm button[type="submit"]').innerText = 'Create Supplier';
+            }
+        });
+
+        document.getElementById('addWarehouseModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (button && button.hasAttribute('data-edit-idx')) {
+                const idx = parseInt(button.getAttribute('data-edit-idx'));
+                editWarehouseIdx = idx;
+                const w = warehouseData[idx];
+                document.getElementById('warName').value = w.name;
+                document.getElementById('warLocation').value = w.location;
+                document.getElementById('warManager').value = w.manager || '';
+                document.querySelector('#addWarehouseModal .modal-title').innerText = 'Edit Warehouse';
+                document.querySelector('#warehouseForm button[type="submit"]').innerText = 'Update Warehouse';
+            } else {
+                editWarehouseIdx = -1;
+                document.getElementById('warehouseForm').reset();
+                document.querySelector('#addWarehouseModal .modal-title').innerText = 'Add New Warehouse';
+                document.querySelector('#warehouseForm button[type="submit"]').innerText = 'Create Warehouse';
+            }
+        });
+
+        document.getElementById('addProductModal').addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            if (button && button.hasAttribute('data-edit-sku')) {
+                const sku = button.getAttribute('data-edit-sku');
+                editProductSku = sku;
+                const p = productData.find(item => item.sku === sku);
+                document.getElementById('newSku').value = p.sku;
+                document.getElementById('newSku').readOnly = true;
+                document.getElementById('newName').value = p.name;
+                document.getElementById('newCategory').value = p.category;
+                document.getElementById('newStatus').value = p.status || 'Active';
+                document.getElementById('newSupplier').value = p.supplier || '';
+                document.getElementById('newStock').value = p.quantity_on_hand;
+                document.getElementById('newCost').value = p.cost_price;
+                document.querySelector('#addProductModal .modal-title').innerText = 'Edit Product';
+                document.querySelector('#productForm button[type="submit"]').innerText = 'Update Product';
+            } else {
+                editProductSku = null;
+                document.getElementById('productForm').reset();
+                document.getElementById('newSku').readOnly = false;
+                document.querySelector('#addProductModal .modal-title').innerText = 'Add New Product';
+                document.querySelector('#productForm button[type="submit"]').innerText = 'Create Product';
+            }
+        });
+
+        document.getElementById('newImageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    tempUploadedImage = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newProduct = {
+                sku: document.getElementById('newSku').value,
+                name: document.getElementById('newName').value,
+                category: document.getElementById('newCategory').value,
+                status: document.getElementById('newStatus').value,
+                supplier: document.getElementById('newSupplier').value,
+                quantity_on_hand: parseInt(document.getElementById('newStock').value) || 0,
+                expiryDate: document.getElementById('newExpiry').value,
+                imageUrl: tempUploadedImage || document.getElementById('newImageUrl').value || 'logo.png',
+                quantity_reserved: 0,
+                cost_price: parseFloat(document.getElementById('newCost').value) || 0
+            };
+            
+            if (!editProductSku && productData.some(p => p.sku === newProduct.sku)) {
+                errorSound.play().catch(e => console.log("Sound play blocked"));
+                showToast('Save Error', 'SKU already exists. Please use a unique identifier.', 'danger');
+                return;
+            }
+
+            if (editProductSku) {
+                const idx = productData.findIndex(p => p.sku === editProductSku);
+                productData[idx] = newProduct;
+                showToast('Product Updated', `${newProduct.name} updated successfully.`, 'success');
+            } else {
+                productData.push(newProduct);
+                showToast('Product Created', `${newProduct.name} has been added to inventory.`, 'success');
+            }
+            saveState();
+            refreshUI();
+            successSound.play().catch(e => console.log("Sound play blocked by browser policy."));
+            
+            tempUploadedImage = null;
+            e.target.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+        });
+
+        document.getElementById('supplierForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                companyName: document.getElementById('supName').value,
+                contactName: document.getElementById('supContact').value,
+                phone: document.getElementById('supPhone').value,
+                email: document.getElementById('supEmail').value,
+                address: document.getElementById('supAddress').value
+            };
+            if (editSupplierIdx > -1) {
+                supplierData[editSupplierIdx] = data;
+                showToast('Supplier Updated', 'Changes saved successfully.', 'success');
+            } else {
+                supplierData.push(data);
+                showToast('Supplier Created', `${data.companyName} added to list.`, 'success');
+            }
+            saveState();
+            refreshUI();
+            successSound.play().catch(e => console.log("Blocked"));
+            e.target.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addSupplierModal')).hide();
+        });
+
+        document.getElementById('warehouseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('warName').value,
+                location: document.getElementById('warLocation').value,
+                manager: document.getElementById('warManager').value
+            };
+            if (editWarehouseIdx > -1) {
+                warehouseData[editWarehouseIdx] = data;
+                showToast('Warehouse Updated', 'Location details updated.', 'success');
+            } else {
+                warehouseData.push(data);
+                showToast('Warehouse Created', 'New storage location added.', 'success');
+            }
+            saveState();
+            refreshUI();
+            successSound.play().catch(e => console.log("Blocked"));
+            e.target.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addWarehouseModal')).hide();
+        });
+
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const sku = document.getElementById('ordProduct').value;
+            const qty = parseInt(document.getElementById('ordQty').value);
+            
+            const product = productData.find(p => p.sku === sku);
+            if (!product || product.quantity_on_hand < qty) {
+                errorSound.play().catch(e => console.log("Blocked"));
+                alert(`Insufficient stock! Only ${product ? product.quantity_on_hand : 0} units left.`);
+                return;
+            }
+
+            const select = document.getElementById('ordProduct');
+            const price = parseFloat(select.options[select.selectedIndex].dataset.price);
+
+            const newOrder = {
+                id: 'ORD-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+                customer: document.getElementById('ordCustomer').value,
+                productSku: sku,
+                productName: product.name,
+                qty: qty,
+                total: price * qty,
+                status: 'Pending',
+                timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16)
+            };
+
+            product.quantity_on_hand -= qty;
+            
+            movementsData.push({
+                timestamp: newOrder.timestamp,
+                productSku: sku,
+                productName: product.name,
+                type: 'Sales Shipment',
+                qtyChange: -qty,
+                reason: `Order ${newOrder.id}`,
+                performedBy: currentUser ? currentUser.name : 'System'
+            });
+
+            orderData.push(newOrder);
+            showToast('Order Created', `Order ${newOrder.id} placed successfully.`, 'success');
+            saveState();
+            refreshUI();
+            successSound.play().catch(e => console.log("Blocked"));
+            e.target.reset();
+            bootstrap.Modal.getInstance(document.getElementById('addOrderModal')).hide();
+        });
+
+        document.getElementById('adjustmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const sku = document.getElementById('adjProduct').value;
+            const qtyChange = parseInt(document.getElementById('adjQty').value);
+            const type = e.target.querySelector('select:not(#adjProduct)').value;
+            const reason = document.getElementById('adjReason').value || 'Manual adjustment';
+
+            const product = productData.find(p => p.sku === sku);
+            if (product) {
+              
+                if (product.quantity_on_hand + qtyChange < 0) {
+                    errorSound.play().catch(e => console.log("Sound play blocked"));
+                    showToast('Adjustment Failed', `Cannot reduce stock below zero. Current: ${product.quantity_on_hand}`, 'danger');
+                    return;
+                }
+
+                product.quantity_on_hand += qtyChange;
+                
+                movementsData.push({
+                    timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16),
+                    productSku: sku,
+                    productName: product.name,
+                    type: type,
+                    qtyChange: qtyChange,
+                    reason: reason,
+                    performedBy: currentUser ? currentUser.name : 'System'
+                });
+
+                saveState();
+                refreshUI();
+                successSound.play().catch(e => console.log("Sound play blocked"));
+                showToast('Stock Adjusted', 'Inventory level updated and logged.', 'success');
+            }
+            
+            renderDashboardCharts();
+            
+            e.target.reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('stockAdjustmentModal'));
+            modal.hide();
+        });
+
+        function applyTableSearch(inputId, tableBodyId) {
+            document.getElementById(inputId).addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll(`#${tableBodyId} tr`);
+                
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(query) ? '' : 'none';
+                });
+            });
+        }
+
+        applyTableSearch('productSearch', 'product-table-body');
+        applyTableSearch('supplierSearch', 'supplier-table-body');
+        applyTableSearch('warehouseSearch', 'warehouse-table-body');
+        applyTableSearch('orderSearch', 'order-table-body');
+
+        function updateNotifications() {
+            const now = new Date();
+            const thirtyDaysFromNow = new Date();
+            thirtyDaysFromNow.setDate(now.getDate() + 30);
+
+            const lowStockItems = productData.filter(p => p.quantity_on_hand < 10);
+            const lowStockCount = lowStockItems.length;
+
+            const expiringSoonItems = productData.filter(p => {
+                if (!p.expiryDate) return false;
+                const expiry = new Date(p.expiryDate);
+                return expiry >= now && expiry <= thirtyDaysFromNow;
+            });
+            const expiringCount = expiringSoonItems.length;
+
+            const logos = document.querySelectorAll('img[alt="Logo"]');
+            logos.forEach(logo => {
+                if (lowStockCount > 0 || expiringCount > 0) {
+                    logo.classList.remove('animate-rainbow-glow');
+                    logo.classList.add('glow-warning');
+                } else {
+                    logo.classList.add('animate-rainbow-glow');
+                    logo.classList.remove('glow-warning');
+                }
+            });
+
+            if (lowStockCount > lastLowStockCount && localStorage.getItem('auth_session') === 'true') {
+                const diff = lowStockCount - lastLowStockCount;
+                speakNotification(`System Alert. ${diff} new item${diff > 1 ? 's are' : ' is'} now low on stock.`);
+            }
+
+            if (expiringCount > lastExpiringCount && localStorage.getItem('auth_session') === 'true') {
+                const diff = expiringCount - lastExpiringCount;
+                speakNotification(`System Warning. ${diff} item${diff > 1 ? 's are' : ' is'} expiring within thirty days.`);
+            }
+
+            lastLowStockCount = lowStockCount;
+            lastExpiringCount = expiringCount;
+
+            const badge = document.getElementById('notificationBadge');
+            const totalAlerts = lowStockCount + expiringCount;
+            if (totalAlerts > 0) {
+                badge.innerText = totalAlerts;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function speakNotification(text) {
+            const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'en-GB';
+                msg.rate = appVoiceSpeed;
+                msg.pitch = appVoicePitch;
+                msg.volume = appVolume;
+                if (preferredVoiceIndex != -1 && voices[preferredVoiceIndex]) msg.voice = voices[preferredVoiceIndex];
+                window.speechSynthesis.speak(msg);
+            }
+
+        document.getElementById('notificationBtn').onclick = () => {
+            const lowStockCount = productData.filter(p => p.quantity_on_hand < 10).length;
+            
+            const now = new Date();
+            const thirtyDaysFromNow = new Date();
+            thirtyDaysFromNow.setDate(now.getDate() + 30);
+            const expiringCount = productData.filter(p => {
+                if (!p.expiryDate) return false;
+                const expiry = new Date(p.expiryDate);
+                return expiry >= now && expiry <= thirtyDaysFromNow;
+            }).length;
+
+            if (lowStockCount > 0) {
+                showToast('Stock Warning', `${lowStockCount} items are low on stock.`, 'warning');
+            }
+            
+            if (expiringCount > 0) {
+                showToast('Expiry Warning', `${expiringCount} items are expiring within 30 days.`, 'danger');
+            }
+
+            if (lowStockCount === 0 && expiringCount === 0) {
+                showToast('System Status', 'Inventory levels and expiry dates are optimal.', 'success');
+            }
+        };
+    </script>
+</body>
+</html>
